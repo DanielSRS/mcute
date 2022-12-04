@@ -41,6 +41,16 @@ const imageLoaderConfiguration = {
   },
 };
 
+const webviewConfiguration = {
+  test: /postMock.html$/,
+  use: {
+    loader: 'url-loader',
+    options: {
+      name: '[name].[ext]',
+    },
+  },
+};
+
 module.exports = {
   entry: [
     // load any web API polyfills
@@ -58,13 +68,18 @@ module.exports = {
   // ...the rest of your config
 
   module: {
-    rules: [babelLoaderConfiguration, imageLoaderConfiguration],
+    rules: [
+      babelLoaderConfiguration,
+      imageLoaderConfiguration,
+      webviewConfiguration,
+    ],
   },
 
   resolve: {
     // This will only alias the exact import "react-native"
     alias: {
       'react-native$': 'react-native-web',
+      'react-native-webview': 'react-native-web-webview',
     },
     // If you're working on a multi-platform React Native app, web-specific
     // module implementations should be written in files using the extension
