@@ -12,6 +12,9 @@
 // Includes from react-native-svg
 #include <winrt/RNSVG.h>
 
+// Includes from react-native-webview
+#include <winrt/ReactNativeWebView.h>
+
 namespace winrt::Microsoft::ReactNative
 {
 
@@ -23,6 +26,8 @@ void RegisterAutolinkedNativeModulePackages(winrt::Windows::Foundation::Collecti
     packageProviders.Append(winrt::RNScreens::ReactPackageProvider());
     // IReactPackageProviders from react-native-svg
     packageProviders.Append(winrt::RNSVG::ReactPackageProvider());
+    // IReactPackageProviders from react-native-webview
+    packageProviders.Append(winrt::ReactNativeWebView::ReactPackageProvider());
 }
 
 }

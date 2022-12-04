@@ -26,6 +26,7 @@
     "react-native-screens": "^3.18.2",
     "react-native-svg": "^13.6.0",
     "react-native-web": "^0.18.10",
+    "react-native-webview": "^11.25.0",
     "react-native-windows": "0.70.7"
   },
   "devDependencies": {
