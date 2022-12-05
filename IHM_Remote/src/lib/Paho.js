@@ -1383,7 +1383,7 @@ function onMessageArrived(message) {
     ClientImpl.prototype._on_socket_message = function (event) {
       this._trace('Client._on_socket_message', event.data);
       var messages = this._deframeMessages(event.data);
-      for (var i = 0; i < messages.length; i += 1) {
+      for (var i = 0; i < messages?.length; i += 1) {
         this._handleMessage(messages[i]);
       }
     };
