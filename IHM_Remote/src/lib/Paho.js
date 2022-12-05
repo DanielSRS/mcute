@@ -569,7 +569,7 @@ function onMessageArrived(message) {
             pos += 2;
           }
 
-          var message = new Paho.MQTT.Message(input.subarray(pos, endPos));
+          var message = new PahoMQTT.Message(input.subarray(pos, endPos));
           if ((messageInfo & 0x01) == 0x01) message.retained = true;
           if ((messageInfo & 0x08) == 0x08) message.duplicate = true;
           message.qos = qos;
