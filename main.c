@@ -7,7 +7,7 @@
 #define MQTT_ADDRESS "tcp://10.0.0.101"
 #define CLIENTID "98631145"
 
-#define USERNAME "aluno123"
+#define USERNAME "aluno"
 #define PASSWORD "@luno*123"
 
 #define MQTT_PUBLISH_TOPIC "B9863"
