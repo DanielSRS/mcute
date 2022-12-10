@@ -79,7 +79,7 @@ const App = () => {
           width={width - unusableArea}
           hideDataPoints
           spacing={(width - unusableArea) / 8.84}
-          //disableScroll={true}
+          disableScroll={true}
           color="#00ff83"
           thickness={2}
           startFillColor="rgba(20,105,81,0.3)"
@@ -96,51 +96,56 @@ const App = () => {
           yAxisTextStyle={{ color: 'gray' }}
           //yAxisSide='right'
           xAxisColor="blue"
-          pointerConfig={{
-            pointerStripHeight: 160,
-            pointerStripColor: 'lightgray',
-            pointerStripWidth: 2,
-            pointerColor: 'lightgray',
-            radius: 6,
-            pointerLabelWidth: 100,
-            pointerLabelHeight: 90,
-            activatePointersOnLongPress: true,
-            autoAdjustPointerLabelPosition: false,
-            pointerLabelComponent: items => {
-              return (
-                <View
-                  style={{
-                    height: 90,
-                    width: 100,
-                    justifyContent: 'center',
-                    marginTop: -30,
-                    marginLeft: -40,
-                  }}>
-                  <Text
-                    style={{
-                      color: 'white',
-                      fontSize: 14,
-                      marginBottom: 6,
-                      textAlign: 'center',
-                    }}>
-                    {items[0].date}
-                  </Text>
+          pointerConfig={
+            Platform.OS === 'windows'
+              ? undefined
+              : {
+                  pointerStripHeight: 160,
+                  pointerStripColor: 'lightgray',
+                  pointerStripWidth: 2,
+                  pointerColor: 'lightgray',
+                  radius: 6,
+                  pointerLabelWidth: 100,
+                  pointerLabelHeight: 90,
+                  activatePointersOnLongPress: true,
+                  autoAdjustPointerLabelPosition: false,
+                  pointerLabelComponent: items => {
+                    return (
+                      <View
+                        style={{
+                          height: 90,
+                          width: 100,
+                          justifyContent: 'center',
+                          marginTop: -30,
+                          marginLeft: -40,
+                        }}>
+                        <Text
+                          style={{
+                            color: 'white',
+                            fontSize: 14,
+                            marginBottom: 6,
+                            textAlign: 'center',
+                          }}>
+                          {items[0].date}
+                        </Text>
 
-                  <View
-                    style={{
-                      paddingHorizontal: 14,
-                      paddingVertical: 6,
-                      borderRadius: 16,
-                      backgroundColor: 'white',
-                    }}>
-                    <Text style={{ fontWeight: 'bold', textAlign: 'center' }}>
-                      {'$' + items[0].value + '.0'}
-                    </Text>
-                  </View>
-                </View>
-              );
-            },
-          }}
+                        <View
+                          style={{
+                            paddingHorizontal: 14,
+                            paddingVertical: 6,
+                            borderRadius: 16,
+                            backgroundColor: 'white',
+                          }}>
+                          <Text
+                            style={{ fontWeight: 'bold', textAlign: 'center' }}>
+                            {'$' + items[0].value + '.0'}
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  },
+                }
+          }
           adjustToWidth={true}
         />
       </View>
