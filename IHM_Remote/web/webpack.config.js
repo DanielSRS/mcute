@@ -4,6 +4,12 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const appDirectory = path.resolve(__dirname, '../');
 
+const compileNodeModules = [
+  // Add every react-native package that needs compiling
+  // 'react-native-gesture-handler',
+  'react-native-gifted-charts',
+].map(moduleName => path.resolve(appDirectory, `node_modules/${moduleName}`));
+
 // This is needed for webpack to compile JavaScript.
 // Many OSS React Native packages are not compiled to ES5 before being
 // published. If you depend on uncompiled packages they may cause webpack build
@@ -16,6 +22,7 @@ const babelLoaderConfiguration = {
     path.resolve(appDirectory, 'index.web.js'),
     path.resolve(appDirectory, './src'),
     path.resolve(appDirectory, 'node_modules/react-native-uncompiled'),
+    ...compileNodeModules,
   ],
   use: {
     loader: 'babel-loader',
