@@ -80,6 +80,7 @@ module.exports = {
     alias: {
       'react-native$': 'react-native-web',
       'react-native-webview': 'react-native-web-webview',
+      'react-native-linear-gradient': 'react-native-web-linear-gradient',
     },
     // If you're working on a multi-platform React Native app, web-specific
     // module implementations should be written in files using the extension

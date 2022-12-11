@@ -27,6 +27,7 @@
     "react-native-screens": "^3.18.2",
     "react-native-svg": "https://github.com/marlenecota/react-native-svg#windows-color",
     "react-native-web": "^0.18.10",
+    "react-native-web-linear-gradient": "^1.1.2",
     "react-native-web-webview": "^1.0.2",
     "react-native-webview": "^11.25.0",
     "react-native-windows": "0.70.7"
