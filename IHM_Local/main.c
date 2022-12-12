@@ -1,13 +1,102 @@
-#include <stdio.h>            // printf, 
+#include <stdio.h>            // printf,
 #include <stdlib.h>           // atoi
-#include <string.h>           // strncpy, strtok, strlen, strcmp, 
+#include <string.h>           // strncpy, strtok, strlen, strcmp,
 #include "display.h"          // write_char, init_display, clear_display
-#include "sensor.h"           // Sensor, print_sensor_to_console, 
+#include "sensor.h"           // Sensor, print_sensor_to_console,
 #include "serial.h"           // uart_configure, uart_send_string, serialReadBytes
 #include "comunication.h"     // command_to_int
 #include "utils.h"            // await
-#include "menu.h"             // menu  
+#include "menu.h"             // menu
 #include "help.h"
+//#include <lcd.h>
+#include <MQTTClient.h>
+//#include <wiringPi.h>
+
+//#define TRUE 1
+#define MQTT_ADDRESS "192.168.1.2"
+#define CLIENTID "98631145"
+
+#define USERNAME "aluno"
+#define PASSWORD "@luno*123"
+
+#define MQTT_PUBLISH_TOPIC "Temp"
+#define MQTT_SUBSCRIBE_TOPIC "Temp"
+
+//USE WIRINGPI PIN NUMBERS
+#define LCD_RS  13               //Register select pin
+#define LCD_E   18               //Enable Pin
+#define LCD_D4  21               //Data pin D4
+#define LCD_D5  24               //Data pin D5
+#define LCD_D6  26               //Data pin D6
+#define LCD_D7  27               //Data pin D7
+
+// Botões
+#define BUTTON_1 19
+#define BUTTON_2 23
+#define BUTTON_3 25
+
+MQTTClient client;
+/*int lcd;
+
+void escreverEmDuasLinhas(char linha1[], char linha2[]) {
+        lcdHome(lcd);
+        lcdPuts(lcd, linha1);
+        lcdPosition(lcd,0,1);
+        lcdPuts(lcd, linha2);
+}*/
+
+void publish(MQTTClient client, char *topic, char *payload);
+int on_message(void *context, char *topicName, int topicLen, MQTTClient_message *message);
+//int isPressed(int btt);
+
+void publish(MQTTClient client, char *topic, char *payload)
+{
+    MQTTClient_message pubmsg = MQTTClient_message_initializer;
+
+    pubmsg.payload = payload;
+    pubmsg.payloadlen = strlen(pubmsg.payload);
+    pubmsg.qos = 2;
+    pubmsg.retained = 0;
+    MQTTClient_deliveryToken token;
+    MQTTClient_publishMessage(client, topic, &pubmsg, &token);
+    MQTTClient_waitForCompletion(client, token, 1000L);
+}
+
+int on_message(void *context, char *topicName, int topicLen, MQTTClient_message *message)
+{
+    char *payload = message->payload;
+
+    /* Mostra a mensagem recebida */
+    printf("Mensagem recebida! \n\rTopico: %s Mensagem: %s\n", topicName, payload);
+
+    /* Faz echo da mensagem recebida */
+    //publish(client, MQTT_PUBLISH_TOPIC, payload);
+
+    MQTTClient_freeMessage(&message);
+    //MQTTClient_free(topicName);
+    return 1;
+}
+
+void on_disconnect(void *context, char *cause) {
+  printf("\n\nDesconectado!!\n");
+  printf("Causa: %s\n\n\n", cause);
+
+  MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
+  conn_opts.keepAliveInterval = 20;
+  conn_opts.cleansession = 1;
+  conn_opts.username = USERNAME;
+  conn_opts.password = PASSWORD;
+
+  int rc = MQTTClient_connect(client, &conn_opts);
+
+    if (rc != MQTTCLIENT_SUCCESS)
+    {
+        printf("\n\rFalha na conexao ao broker MQTT. Erro: %d\n", rc);
+        exit(-1);
+    }
+
+    MQTTClient_subscribe(client, MQTT_SUBSCRIBE_TOPIC, 0);
+};
 
 
 int get_number_of_digital_ios();
@@ -32,6 +121,47 @@ int main(int argc, char *argv[]) {
     clear_display();                  // Limpa o conteudo do diaplay
     write_string("Iniciando");
     uart_configure();                 // configura a uart
+    //wiringPiSetup();
+    //lcd = lcdInit (2, 16, 4, LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7,0,0,0,0);
+    //pinMode(BUTTON_1,INPUT);
+    //pinMode(BUTTON_2,INPUT);
+    //pinMode(BUTTON_3,INPUT);
+
+    //escreverEmDuasLinhas("     MI - SD    ", "Protocolo MQTT");
+    /*while (1) {
+        //printf("no loop\n\n");
+        isPressed(BUTTON_1);
+        isPressed(BUTTON_2);
+        //await(1000);
+    }*/
+
+    int rc;
+
+    /*Configuração do Cliente*/
+    MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
+    conn_opts.keepAliveInterval = 20;
+    conn_opts.cleansession = 1;
+    conn_opts.username = USERNAME;
+    conn_opts.password = PASSWORD;
+
+    /* Inicializacao do MQTT (conexao & subscribe) */
+    MQTTClient_create(&client, MQTT_ADDRESS, CLIENTID, MQTTCLIENT_PERSISTENCE_NONE, NULL);
+    MQTTClient_setCallbacks(client, NULL, on_disconnect, on_message, NULL);
+
+    rc = MQTTClient_connect(client, &conn_opts);
+
+    if (rc != MQTTCLIENT_SUCCESS)
+    {
+        printf("\n\rFalha na conexao ao broker MQTT. Erro: %d\n", rc);
+        exit(-1);
+    }
+
+    MQTTClient_subscribe(client, MQTT_SUBSCRIBE_TOPIC, 0);
+
+    
+    printf("\nconfig mqtt\n");
+
+    //escreverEmDuasLinhas("     MI - SD    ", "Protocolo MQTT");
     unsigned char ler[100];           // Leitura de respostas
 
     Sensor analogico;
@@ -76,9 +206,9 @@ int main(int argc, char *argv[]) {
             int res = add_digital_sensor(argv[index], &digital[digitalQtd]);
             if (res == -1) { // se hoube erro
               exit(0);        // termina o programa
-            }                 // do contrario      
+            }                 // do contrario
             digitalQtd++;     // contabilize o sensor adicionado
-            
+
         }
 
         /**
@@ -136,20 +266,20 @@ int main(int argc, char *argv[]) {
                 send_command(GET_NODE_MCU_STATUS, 'O');
                 printf("Obtendo status da NodeMCU...\n");
                 await(3000);
-                serialReadBytes(ler); // lê resposta
+                //serialReadBytes(ler); // lê resposta
                 if (ler[0] == NODE_MCU_STATUS_OK && ler[1] == NODE_MCU_STATUS_ERROR) {
                   sprintf(notice, "Status: OK");                                                   // Limpa mensagem
                 } else {
                   sprintf(notice, "Status: ERRO!");
                 }
                 clear_display();
-                write_string(notice); 
+                write_string(notice);
                 break;
 
               case 1:
                 send_command(NODE_MCU_ON_LED_BUILTIN, 'L');
-                sprintf(notice, "LED ligado");    
-                clear_display();   
+                sprintf(notice, "LED ligado");
+                clear_display();
                 write_string(notice);                                            // Limpa mensagem
                 break;
 
@@ -164,11 +294,11 @@ int main(int argc, char *argv[]) {
                 send_command(GET_ANALOG_INPUT_VALUE, GET_ANALOG_INPUT_VALUE);
                 printf("Lendo sensor analogico...\n");
                 await(3000);
-                serialReadBytes(ler); // lê resposta
+                //serialReadBytes(ler); // lê resposta
                 print_sensor_to_console("Analogico", command_to_int(ler[1], ler[2]));
                 sprintf(notice, "%9s: %4i", "Analogico", command_to_int(ler[1], ler[2]));
                 break;
-              
+
               case 4:
                 printf("Digite o endereço do sensor: ");
                 scanf("%s", ler);
@@ -176,7 +306,7 @@ int main(int argc, char *argv[]) {
                 printf("Lendo sensor digital...\n");
                 send_command(GET_DIGITAL_INPUT_VALUE, (char) sensor_address);           // Solicita leitura do sensor
                 await(3000);                                                            // Aguarda comando ser processado
-                serialReadBytes(ler);                                                   // lê resposta
+                //serialReadBytes(ler);                                                   // lê resposta
 
 
                 if (ler[0] == NODE_MCU_STATUS_ERROR) {                                                     // Se houve erro na leitura
@@ -192,13 +322,13 @@ int main(int argc, char *argv[]) {
               case 5:
                 exit(0);
                 break;
-              
+
               default:
                 sprintf(notice, " ");                                                   // Limpa mensagem
                 break;
-            } 
+            }
           }
-          
+
         }
 
         // menu de ajuda
@@ -224,25 +354,24 @@ int main(int argc, char *argv[]) {
       if (analogico.type == Analogic) { // Se existe um sensor analogico
         send_command(GET_ANALOG_INPUT_VALUE, GET_ANALOG_INPUT_VALUE);
         await(3000);
-        serialReadBytes(ler); // lê resposta
-        analogico.value = command_to_int(ler[1], ler[2]);
+        //serialReadBytes(ler); // lê resposta
+        //analogico.value = command_to_int(ler[1], ler[2]);
         print_sensor_to_console(analogico.name, analogico.value);
       }
 
       /**
-       * Lê o sensor digital
        */
       for (int i = 0; i < digitalQtd; i++) {
         send_command(GET_DIGITAL_INPUT_VALUE, (char) digital[i].id);            // Solicita leitura do sensor
         await(3000);                                                            // Aguarda comando ser processado
-        serialReadBytes(ler);                                                   // lê resposta
+        //serialReadBytes(ler);                                                   // lê resposta
 
-        if (ler[0] == NODE_MCU_STATUS_ERROR) {                                                     // Se houve erro na leitura
+        if (0) {                                                     // Se houve erro na leitura
           printf("NodeMCU com problema. Endereço do sensor é inválido!\n");
           clear_display();
           write_string("NodeMCU com erro");
         } else {                                                                // Se lido com sucesso
-          digital[i].value = ler[1] - '0';                                         // salva o valor lido
+          //digital[i].value = ler[1] - '0';                                         // salva o valor lido
           print_sensor_to_console(digital[i].name, digital[i].value);           // Exibe informações lidas
         }
       }
@@ -257,14 +386,14 @@ int main(int argc, char *argv[]) {
 /**
  * @brief Obtem o numero de entradas digitais disponíveis para
  * leitura
- * 
+ *
  * @return int o numero de entradas digitais ou -1 em caso de erro
  */
 int get_number_of_digital_ios() {
   unsigned char read[100];
   send_command(GET_NUMBER_OF_SENSORS, GET_NUMBER_OF_SENSORS);
   await(3000);
-  serialReadBytes(read);
+  //serialReadBytes(read);
   if (read[0] != NUMBER_OF_DIGITAL_PORTS || strlen(read) < 2) {
     return -1;
   }
@@ -273,9 +402,9 @@ int get_number_of_digital_ios() {
 }
 
 /**
- * @brief Exibe no terminal o nome e o endereço de cada uma das 
+ * @brief Exibe no terminal o nome e o endereço de cada uma das
  * entradas digitais disponíveis.
- * 
+ *
  * @param max_digital Numero maximo de entradas digitais. (valor
  * retornado pela função get_number_of_digital_ios)
  * @see get_number_of_digital_ios
@@ -288,10 +417,10 @@ void print_io_name_and_id(int max_digital) {
   for (int p = 1; p <= max_digital; p++) {
     send_command(GET_SENSOR_ADDRESS, p);                                  // Solicita o endereço do sensor
     await(3000);                                                          // Aguarda processamento da solicitação
-    serialReadBytes(read);                                                // faz a leitura
+    //serialReadBytes(read);                                                // faz a leitura
 
     /** Se problema com a node, encerra a leitura*/
-    if (read[0] == NODE_MCU_STATUS_ERROR) {                                                  // se houver erro
+    if (0) {                                                  // se houver erro
       printf("NodeMCU com problema!!!\n\n");
       clear_display();
       write_string("NodeMCU com erro");
@@ -303,7 +432,7 @@ void print_io_name_and_id(int max_digital) {
     /** Obtendo o nome */
     send_command(GET_SENSOR_NAME, sensor_address);                        // Solicita o nome do sensor
     await(3000);                                                          // Aguarda processamento da solicitação
-    serialReadBytes(read);                                                // Lê a resposta
+    //serialReadBytes(read);                                                // Lê a resposta
 
     command[0] = read[1];
     command[1] = read[2];
@@ -372,7 +501,7 @@ void separate_string_in_3(char *str, char a[10], char b[10], char c[10]) {
 
 /**
  * @brief Adiciona um sensor digital a lista de sensores salvos
- * 
+ *
  * @param sensor_info String (argumento recebido pelo programa) contendo
  * as informações do sensor digital
  * @param digital Ponteiro para uma estrutura onde as informações serão salvas
@@ -418,7 +547,7 @@ int add_digital_sensor(char *sensor_info, Sensor *digital) {
   //digital[0].name = arr[1];
   /**
    * @brief Definido as outras propriedades do sensor
-   * 
+   *
    */
   digital->value = 0;
   digital->id = atoi(arr[2]);
@@ -441,3 +570,17 @@ int add_digital_sensor(char *sensor_info, Sensor *digital) {
   //printf("nome %s", arr[1]);
   return 1;
 }
+
+
+/*
+int isPressed(int gpio_number){
+  if(digitalRead(gpio_number) == 0) {
+    await(100);
+    if(digitalRead(gpio_number) == 0){
+      printf("Pressed %d! \n", gpio_number);
+      return 1;
+    }
+  }
+  return 0;
+}
+*/
