@@ -11,16 +11,7 @@
 //#include <lcd.h>
 #include <MQTTClient.h>
 //#include <wiringPi.h>
-
-//#define TRUE 1
-#define MQTT_ADDRESS "192.168.1.2"
-#define CLIENTID "98631145"
-
-#define USERNAME "aluno"
-#define PASSWORD "@luno*123"
-
-#define MQTT_PUBLISH_TOPIC "Temp"
-#define MQTT_SUBSCRIBE_TOPIC "Temp"
+#include "mqtt.h"
 
 //USE WIRINGPI PIN NUMBERS
 #define LCD_RS  13               //Register select pin
@@ -45,59 +36,7 @@ void escreverEmDuasLinhas(char linha1[], char linha2[]) {
         lcdPuts(lcd, linha2);
 }*/
 
-void publish(MQTTClient client, char *topic, char *payload);
-int on_message(void *context, char *topicName, int topicLen, MQTTClient_message *message);
 //int isPressed(int btt);
-
-void publish(MQTTClient client, char *topic, char *payload)
-{
-    MQTTClient_message pubmsg = MQTTClient_message_initializer;
-
-    pubmsg.payload = payload;
-    pubmsg.payloadlen = strlen(pubmsg.payload);
-    pubmsg.qos = 2;
-    pubmsg.retained = 0;
-    MQTTClient_deliveryToken token;
-    MQTTClient_publishMessage(client, topic, &pubmsg, &token);
-    MQTTClient_waitForCompletion(client, token, 1000L);
-}
-
-int on_message(void *context, char *topicName, int topicLen, MQTTClient_message *message)
-{
-    char *payload = message->payload;
-
-    /* Mostra a mensagem recebida */
-    printf("Mensagem recebida! \n\rTopico: %s Mensagem: %s\n", topicName, payload);
-
-    /* Faz echo da mensagem recebida */
-    //publish(client, MQTT_PUBLISH_TOPIC, payload);
-
-    MQTTClient_freeMessage(&message);
-    //MQTTClient_free(topicName);
-    return 1;
-}
-
-void on_disconnect(void *context, char *cause) {
-  printf("\n\nDesconectado!!\n");
-  printf("Causa: %s\n\n\n", cause);
-
-  MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
-  conn_opts.keepAliveInterval = 20;
-  conn_opts.cleansession = 1;
-  conn_opts.username = USERNAME;
-  conn_opts.password = PASSWORD;
-
-  int rc = MQTTClient_connect(client, &conn_opts);
-
-    if (rc != MQTTCLIENT_SUCCESS)
-    {
-        printf("\n\rFalha na conexao ao broker MQTT. Erro: %d\n", rc);
-        exit(-1);
-    }
-
-    MQTTClient_subscribe(client, MQTT_SUBSCRIBE_TOPIC, 0);
-};
-
 
 int get_number_of_digital_ios();
 char *getSubstring(char *dst, const char *src, size_t start, size_t end);
@@ -134,32 +73,20 @@ int main(int argc, char *argv[]) {
         isPressed(BUTTON_2);
         //await(1000);
     }*/
+    ContextData data;
 
-    int rc;
-
-    /*Configuração do Cliente*/
-    MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
-    conn_opts.keepAliveInterval = 20;
-    conn_opts.cleansession = 1;
-    conn_opts.username = USERNAME;
-    conn_opts.password = PASSWORD;
-
-    /* Inicializacao do MQTT (conexao & subscribe) */
-    MQTTClient_create(&client, MQTT_ADDRESS, CLIENTID, MQTTCLIENT_PERSISTENCE_NONE, NULL);
-    MQTTClient_setCallbacks(client, NULL, on_disconnect, on_message, NULL);
-
-    rc = MQTTClient_connect(client, &conn_opts);
-
-    if (rc != MQTTCLIENT_SUCCESS)
-    {
+    /*****************************************************************/
+    printf("Inicio da configuração do mqtt\n");
+    int rc = configMqttClient(&data);
+    if (rc != MQTTCLIENT_SUCCESS) {
         printf("\n\rFalha na conexao ao broker MQTT. Erro: %d\n", rc);
         exit(-1);
+    } else {
+      printf("conectado!!\n\n");
     }
-
-    MQTTClient_subscribe(client, MQTT_SUBSCRIBE_TOPIC, 0);
-
-    
-    printf("\nconfig mqtt\n");
+    MQTTClient_subscribe(data.client, MQTT_SUBSCRIBE_TOPIC, 0);
+    printf("Fim da configuração do mqtt\n");
+    /*****************************************************************/
 
     //escreverEmDuasLinhas("     MI - SD    ", "Protocolo MQTT");
     unsigned char ler[100];           // Leitura de respostas
