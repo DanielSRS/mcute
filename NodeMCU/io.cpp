@@ -1,8 +1,3 @@
-/*
-#include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
-*/
 #include <ArduinoOTA.h> // uint8_t
 #include "io.h"
 
@@ -125,4 +120,3 @@ void setup_io_pins() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
  }
- 

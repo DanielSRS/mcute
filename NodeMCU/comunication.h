@@ -31,15 +31,18 @@
  * @param code codigo de resposta
  * @param value valor da resposta
  */
-void send_response(unsigned char code, unsigned char value, unsigned char second_value) {
+void send_response(unsigned char code, unsigned char value, unsigned char second_value, void (*fun)(char* message)) {
+  char message[10] = "\0\0\0";
   Serial.write(code);
   Serial.write(value);
   Serial.write(second_value);
   Serial.printf(" - %i_%i_%i\n", code, value, second_value);
+  sprintf(message, "%c%c%c", code, value, second_value);
+  fun(message);
 }
 
-void send_response(unsigned char code, unsigned char value) {
-  send_response(code, value, '\0');
+void send_response(unsigned char code, unsigned char value, void (*fun)(char*)) {
+  send_response(code, value, '\0', fun);
 }
 
 /**
@@ -48,8 +51,8 @@ void send_response(unsigned char code, unsigned char value) {
  * @param specific_error_code codigo de erro específico ao 
  * procedimento que gerou o erro
  */
-void send_error(unsigned char specific_error_code) {
-  send_response(NODE_MCU_STATUS_ERROR, specific_error_code);
+void send_error(unsigned char specific_error_code, void (*fun)(char*)) {
+  send_response(NODE_MCU_STATUS_ERROR, specific_error_code, fun);
 }
 
 #endif
