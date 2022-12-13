@@ -285,23 +285,32 @@ int main(int argc, char *argv[]) {
 
     printf("Iniciando leitura\n\n");
 
+    char cmd[2] = "OO";
+
     while(1) {
       /**
        * Lê o sensor analogico
        */
       if (analogico.type == Analogic) { // Se existe um sensor analogico
+        print_sensor_to_console(analogico.name, analogico.value);
         send_command(GET_ANALOG_INPUT_VALUE, GET_ANALOG_INPUT_VALUE);
-        await(3000);
+        cmd[0] = GET_ANALOG_INPUT_VALUE;
+        cmd[1] = GET_ANALOG_INPUT_VALUE;
+        publish(data.client, "comand", (char*) cmd);
+        await(1000);
         //serialReadBytes(ler); // lê resposta
         //analogico.value = command_to_int(ler[1], ler[2]);
-        print_sensor_to_console(analogico.name, analogico.value);
       }
 
       /**
        */
       for (int i = 0; i < digitalQtd; i++) {
-        send_command(GET_DIGITAL_INPUT_VALUE, (char) digital[i].id);            // Solicita leitura do sensor
-        await(3000);                                                            // Aguarda comando ser processado
+        print_sensor_to_console(digital[i].name, digital[i].value);  
+        send_command(GET_DIGITAL_INPUT_VALUE, (char) digital[i].id);
+        cmd[0] = GET_DIGITAL_INPUT_VALUE;
+        cmd[1] = (char) digital[i].id;
+        publish(data.client, "comand", (char*) cmd);            // Solicita leitura do sensor
+        await(1000);                                                            // Aguarda comando ser processado
         //serialReadBytes(ler);                                                   // lê resposta
 
         if (0) {                                                     // Se houve erro na leitura
@@ -310,7 +319,7 @@ int main(int argc, char *argv[]) {
           write_string("NodeMCU com erro");
         } else {                                                                // Se lido com sucesso
           //digital[i].value = ler[1] - '0';                                         // salva o valor lido
-          print_sensor_to_console(digital[i].name, digital[i].value);           // Exibe informações lidas
+          //print_sensor_to_console(digital[i].name, digital[i].value);           // Exibe informações lidas
         }
       }
 
