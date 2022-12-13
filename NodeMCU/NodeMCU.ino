@@ -20,6 +20,7 @@ void setup() {
 }
 
 void loop() {
+  initialTime = millis();
   handle_ota();
   client.loop();
 
@@ -38,7 +39,7 @@ void process_command(int comando,int endereco) {
         {
           int res = read_digital_input(endereco);
           res != -1
-            ? send_response(DIGITAL_LEVEL, res + '0', &mqtt_publish) // retorna valor com sucesso
+            ? send_response(DIGITAL_LEVEL, res + '0', endereco, &mqtt_publish) // retorna valor com sucesso
             : send_error(DIGITAL_LEVEL, &mqtt_publish);                // retorna erro de port inexistente
         }
         break;
@@ -73,7 +74,7 @@ void process_command(int comando,int endereco) {
         {
           int res = get_digital_io_address(endereco);
           res != -1
-            ? send_response(SENSOR_ADDRESS_VALUE, res, &mqtt_publish) // resposta
+            ? send_response(SENSOR_ADDRESS_VALUE, res, endereco, &mqtt_publish) // resposta
             : send_error(SENSOR_ADDRESS_VALUE, &mqtt_publish); // erro
         }
         break;
@@ -107,7 +108,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
   // Allocate the correct amount of memory for the payload copy
   String topico = String(topic);
   printf("Recebido mensagem no topico: %s\n", topic);
-  initialTime = millis();
 
   if(topico.equals("comand")){
     printf("processando comando\n");

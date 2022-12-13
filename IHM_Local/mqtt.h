@@ -1,4 +1,5 @@
 #include <MQTTClient.h>
+#include "sensor.h"
 #ifndef MQTT_H
 #define MQTT_H
 
@@ -13,6 +14,11 @@
 
 struct mqtt_context {
   MQTTClient client;
+  int verif;
+  Sensor *analogic;
+  Sensor *digitals;
+  int *digitalQtd;
+  MQTTClient_connectOptions *MQTT_CONFIG;
 };
 
 typedef struct mqtt_context ContextData;

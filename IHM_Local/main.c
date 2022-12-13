@@ -73,7 +73,22 @@ int main(int argc, char *argv[]) {
         isPressed(BUTTON_2);
         //await(1000);
     }*/
+    MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
+    conn_opts.keepAliveInterval = 20;
+    conn_opts.cleansession = 1;
+    conn_opts.username = USERNAME;
+    conn_opts.password = PASSWORD;
+
+    Sensor analogico;
+    Sensor digital[31];
+    int digitalQtd = 0;               // Quantidade de sensores digitais selecionados
     ContextData data;
+    data.analogic = &analogico;
+    data.digitals = digital;
+    data.digitalQtd = &digitalQtd;
+    data.verif = 753;
+    data.MQTT_CONFIG = &conn_opts;
+
 
     /*****************************************************************/
     printf("Inicio da configuração do mqtt\n");
@@ -85,16 +100,12 @@ int main(int argc, char *argv[]) {
       printf("conectado!!\n\n");
     }
     MQTTClient_subscribe(data.client, MQTT_SUBSCRIBE_TOPIC, 0);
-    printf("Fim da configuração do mqtt\n");
+    printf("Fim da configuração do mqtt em: %p\n", &data);
     /*****************************************************************/
 
     //escreverEmDuasLinhas("     MI - SD    ", "Protocolo MQTT");
     unsigned char ler[100];           // Leitura de respostas
 
-    Sensor analogico;
-    Sensor digital[31];
-
-    int digitalQtd = 0;               // Quantidade de sensores digitais selecionados
     if (argc < 2) {                   // Se não tiver argumentos, encerra o programa
       printf("Uso inválido. Não há argumentos\n");
       return 0;

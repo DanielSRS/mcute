@@ -3,19 +3,11 @@
 #include <string.h>
 #include <MQTTClient.h>
 #include "mqtt.h"
-
-void publish(MQTTClient client, char *topic, char *payload);
-int on_message(void *context, char *topicName, int topicLen, MQTTClient_message *message);
-void on_disconnect(void *context, char *cause);
+#include "comunication.h"
 
 int configMqttClient(ContextData *data) {
-    printf("entra nas config\n");
+    printf("entra nas config de: %p\n", data);
     /*Configuração do Cliente*/
-    MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
-    conn_opts.keepAliveInterval = 20;
-    conn_opts.cleansession = 1;
-    conn_opts.username = USERNAME;
-    conn_opts.password = PASSWORD;
 
     printf("criado obj\n");
     printf("client antes da config: %p\n", data->client);
@@ -23,11 +15,11 @@ int configMqttClient(ContextData *data) {
     /* Inicializacao do MQTT (conexao & subscribe) */
     MQTTClient_create(&data->client, MQTT_ADDRESS, CLIENTID, MQTTCLIENT_PERSISTENCE_NONE, NULL);
     printf("Cliente depois da config: %p\n", data->client);
-    MQTTClient_setCallbacks(data->client, &data, on_disconnect, on_message, NULL);
+    MQTTClient_setCallbacks(data->client, data, on_disconnect, on_message, NULL);
 
-    printf("Setando os callbacks em: %p\n", data->client);
+    printf("Setando os callbacks em: %p - %i\n", data->client, data->verif);
 
-    return MQTTClient_connect(data->client, &conn_opts);
+    return MQTTClient_connect(data->client, data->MQTT_CONFIG);
 }
 
 void publish(MQTTClient client, char *topic, char *payload)
@@ -50,6 +42,39 @@ int on_message(void *context, char *topicName, int topicLen, MQTTClient_message 
 
     /* Mostra a mensagem recebida */
     printf("Mensagem recebida! \n\rTopico: %s Mensagem: %s\n", topicName, payload);
+    int val = payload[1] - '0';
+    int response_type = payload[0];
+
+    // Atualiza o valor de um sensor digital
+    if (response_type == ANALOG_LEVEL) {
+        printf("Atualizando valor do analogico\n");
+        data->analogic->value = command_to_int(payload[1], payload[2]);
+    }
+
+    // Atualiza valor de um dos sensores digitais
+    if (response_type == DIGITAL_LEVEL) {
+        int digital_sensor_address = payload[2];
+        for (int i = 0; i < *data->digitalQtd; i++) {
+            if (digital_sensor_address == data->digitals[i].id) {
+                data->digitals[i].value = payload[1] - '0';
+                printf("Sensor %i: %s\n", i + 1, data->digitals[i].name);
+                printf("new val: %i \n", data->digitals[i].value);
+            }
+        }
+    }
+
+    if (response_type == NODE_MCU_STATUS_ERROR) {
+        printf("Node mcu com erro. ");
+        if (payload[1] == DIGITAL_LEVEL) {
+            printf("Endereço do sensor incorreto!! \n");
+        }
+        if (payload[1] == SENSOR_ADDRESS_VALUE) {
+            printf("Indice do sensor inváido!! \n");
+        }
+        if (payload[1] == DIGITAL_PORT_NAME) {
+            printf("Endereço do sensor incorreto!! \n");
+        }
+    }
 
     /* Faz echo da mensagem recebida */
     //publish(data->client, MQTT_PUBLISH_TOPIC, payload);
@@ -63,17 +88,12 @@ void on_disconnect(void *context, char *cause) {
   printf("\n\nDesconectado!!\n");
   printf("Causa: %s\n\n\n", cause);
 
-  MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
-  conn_opts.keepAliveInterval = 20;
-  conn_opts.cleansession = 1;
-  conn_opts.username = USERNAME;
-  conn_opts.password = PASSWORD;
-
   ContextData *data = context;
 
   printf("Client mqtt: %p\n", data->client);
+  printf("Client mqtt: %i\n", data->verif);
 
-  int rc = MQTTClient_connect(data->client, &conn_opts);
+  int rc = MQTTClient_connect(data->client, data->MQTT_CONFIG);
 
     if (rc != MQTTCLIENT_SUCCESS)
     {
