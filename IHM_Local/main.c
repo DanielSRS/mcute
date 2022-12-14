@@ -305,7 +305,11 @@ int main(int argc, char *argv[]) {
         send_command(GET_ANALOG_INPUT_VALUE, GET_ANALOG_INPUT_VALUE);
         cmd[0] = GET_ANALOG_INPUT_VALUE;
         cmd[1] = GET_ANALOG_INPUT_VALUE;
+        // solicita valor para a ESP
         publish(data.client, "comand", (char*) cmd);
+        // publica historico de valores
+        char history[255];
+        publish(data.client, "analogic/history", queue_to_string(leituras, &history));
         await(1000);
         //serialReadBytes(ler); // lê resposta
         //analogico.value = command_to_int(ler[1], ler[2]);
@@ -321,6 +325,11 @@ int main(int argc, char *argv[]) {
         cmd[0] = GET_DIGITAL_INPUT_VALUE;
         cmd[1] = (char) digital[i].id;
         publish(data.client, "comand", (char*) cmd);            // Solicita leitura do sensor
+        char history[255];
+        char topic[255];
+        sprintf(topic, "%i/history", cmd[1]);
+        printf("Topico: %s\n", topic);
+        publish(data.client, topic, queue_to_string(leituras, &history));
         await(1000);                                                            // Aguarda comando ser processado
         //serialReadBytes(ler);                                                   // lê resposta
 

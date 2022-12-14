@@ -24,5 +24,6 @@ int push(struct queue_head *queue, int val);
 int pop(struct queue_head *queue);
 int print_queue(struct queue_head *queue);
 int peek_value(struct queue_head *queue);
+char *queue_to_string(struct queue_head *queue, char *returned);
 
 #endif

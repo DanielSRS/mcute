@@ -1,5 +1,6 @@
 #include <stdio.h> // just for NULL and printf
 #include <stdlib.h> // malock e free
+#include <string.h>
 #include "queue.h"
 /**
  * @brief It is actualy a reverse queue
@@ -120,4 +121,30 @@ int peek_value(struct queue_head *queue) {
   }
   //printf("retornando valor: %i\n", queue->first_item->value);
   return queue->first_item->value;
+}
+
+char *queue_to_string(struct queue_head *queue, char *returned) {
+  if (queue == NULL) {
+    return  NULL;
+  }
+  char destination[255] = "{\n";
+  sprintf(destination, "%s\tnumber_of_items: %i,\n", destination, queue->number_of_items);
+  sprintf(destination, "%s\tmax_lenght: %i,\n", destination, queue->max_lenght);
+  sprintf(destination, "%s\tvalues: [", destination);
+  struct node * current_item = queue->first_item;
+
+  // iterando
+  while (current_item != NULL && queue->number_of_items > 0)
+  {
+    sprintf(destination, "%s %i", destination, current_item->value);
+
+    current_item = current_item->next;
+    if (current_item != NULL) {
+        sprintf(destination, "%s,", destination);
+    }
+  }
+  sprintf(destination, "%s ],\n", destination);
+  sprintf(destination, "%s}\n", destination);
+  //printf(destination);
+  return strcpy(returned, destination);
 }
