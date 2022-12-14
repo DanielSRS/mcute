@@ -114,3 +114,17 @@ int print_queue(struct queue_head *queue) {
   printf("}\n");
   return 0;
 }
+
+int peek_value(struct queue_head *queue) {
+  if (queue == NULL) {
+    printf("endereço invalod da lista\n");
+    return -1;
+  }
+  //printf("lista de tamanho: %i\n", queue->number_of_items);
+  if (queue->number_of_items <= 0) {
+    printf("sem itens na lista\n");
+    return -1;
+  }
+  //printf("retornando valor: %i\n", queue->first_item->value);
+  return queue->first_item->value;
+}
