@@ -9,8 +9,8 @@ list: all
 
 all: Rasp
 
-Rasp: Rasp.o display.o serial.o comunication.o sensor.o utils.o menu.o terminal.o help.o mqtt.o
-		gcc main.o display.o serial.o comunication.o sensor.o lcd.o utils.o menu.o terminal.o help.o mqtt.o -o Rasp -l paho-mqtt3c
+Rasp: Rasp.o display.o serial.o comunication.o sensor.o utils.o menu.o terminal.o help.o mqtt.o queue.o
+		gcc main.o display.o serial.o comunication.o sensor.o lcd.o utils.o menu.o terminal.o help.o mqtt.o queue.o -o Rasp -l paho-mqtt3c
 
 Rasp.o: main.c
 		gcc -c main.c -o main.o
@@ -20,6 +20,9 @@ lcd: lcd.s
 
 mqtt.o: mqtt.c
 		gcc -c mqtt.c -o mqtt.o
+
+queue.o: queue.c
+		gcc -c queue.c -o queue.o
 
 mock: display.mock.c
 		gcc -c display.mock.c -o lcd.o

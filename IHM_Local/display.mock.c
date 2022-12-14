@@ -3,7 +3,8 @@
 
 void clear_display(void) {
   //printf("--Clear display--\n");
-  printf("\e[1;1H\e[2J"); 
+  printf("\e[1;1H\e[2J");
+  //printf("\n");
 }
 
 void init_display(void) {

@@ -48,7 +48,11 @@ int on_message(void *context, char *topicName, int topicLen, MQTTClient_message 
     // Atualiza o valor de um sensor digital
     if (response_type == ANALOG_LEVEL) {
         //printf("Atualizando valor do analogico\n");
-        data->analogic->value = command_to_int(payload[1], payload[2]);
+        //data->analogic->valuees = command_to_int(payload[1], payload[2]);
+        if (data->analogic->values.number_of_items >= data->analogic->values.max_lenght) {
+            pop(&data->analogic->values);
+        }
+        push(&data->analogic->values, command_to_int(payload[1], payload[2]));
     }
 
     // Atualiza valor de um dos sensores digitais
@@ -56,7 +60,11 @@ int on_message(void *context, char *topicName, int topicLen, MQTTClient_message 
         int digital_sensor_address = payload[2];
         for (int i = 0; i < *data->digitalQtd; i++) {
             if (digital_sensor_address == data->digitals[i].id) {
-                data->digitals[i].value = payload[1] - '0';
+                //data->digitals[i].value = payload[1] - '0';
+                if (data->digitals[i].values.number_of_items >= data->digitals[i].values.max_lenght) {
+                    pop(&data->digitals[i].values);
+                }
+                push(&data->digitals[i].values, payload[1] - '0');
                 //printf("Sensor %i: %s\n", i + 1, data->digitals[i].name);
                 //printf("new val: %i \n", data->digitals[i].value);
             }

@@ -1,3 +1,4 @@
+#include "queue.h"
 #ifndef SENSOR_H
 #define SENSOR_H
 
@@ -11,7 +12,7 @@ struct sensor_data {
     char name[17];
     //char default_name[2];
     //char description[255];
-    int value;
+    struct queue_head values;
     int id;
     enum sensor_type type;
 };

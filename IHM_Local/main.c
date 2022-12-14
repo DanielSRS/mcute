@@ -12,6 +12,7 @@
 #include <MQTTClient.h>
 //#include <wiringPi.h>
 #include "mqtt.h"
+#include "queue.h"
 
 //USE WIRINGPI PIN NUMBERS
 #define LCD_RS  13               //Register select pin
@@ -128,7 +129,13 @@ int main(int argc, char *argv[]) {
                     analogico.name[i] = j[i];
                 }
                 analogico.name[10] = '\0';
-            analogico.value = 0;
+            //analogico.value = 0;
+            //printf("\n\nDefinindo tamano do analogicon\n\n");
+            struct queue_head *leituras = &(analogico.values);
+            leituras->max_lenght = 10;
+            leituras->number_of_items = 0;
+            push(leituras, 0);
+            printf("V - %i\n", leituras->number_of_items);
             analogico.id = 'A';
             analogico.type = Analogic;
         }
@@ -292,7 +299,9 @@ int main(int argc, char *argv[]) {
        * Lê o sensor analogico
        */
       if (analogico.type == Analogic) { // Se existe um sensor analogico
-        print_sensor_to_console(analogico.name, analogico.value);
+        struct queue_head *leituras = &(analogico.values);
+        int val = peek_value(leituras);
+        print_sensor_to_console(analogico.name, val);
         send_command(GET_ANALOG_INPUT_VALUE, GET_ANALOG_INPUT_VALUE);
         cmd[0] = GET_ANALOG_INPUT_VALUE;
         cmd[1] = GET_ANALOG_INPUT_VALUE;
@@ -305,7 +314,9 @@ int main(int argc, char *argv[]) {
       /**
        */
       for (int i = 0; i < digitalQtd; i++) {
-        print_sensor_to_console(digital[i].name, digital[i].value);  
+        struct queue_head *leituras = &(digital[i].values);
+        int val = peek_value(leituras);
+        print_sensor_to_console(digital[i].name, val);  
         send_command(GET_DIGITAL_INPUT_VALUE, (char) digital[i].id);
         cmd[0] = GET_DIGITAL_INPUT_VALUE;
         cmd[1] = (char) digital[i].id;
@@ -496,7 +507,11 @@ int add_digital_sensor(char *sensor_info, Sensor *digital) {
    * @brief Definido as outras propriedades do sensor
    *
    */
-  digital->value = 0;
+  //digital->value = 0;
+  struct queue_head *leituras = &(digital->values);
+  leituras->max_lenght = 10;
+  leituras->number_of_items = 0;
+  push(&digital->values, 0);
   digital->id = atoi(arr[2]);
   digital->type = Digital;
 
