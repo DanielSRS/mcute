@@ -127,10 +127,10 @@ char *queue_to_string(struct queue_head *queue, char *returned) {
   if (queue == NULL) {
     return  NULL;
   }
-  char destination[255] = "{\n";
-  sprintf(destination, "%s\tnumber_of_items: %i,\n", destination, queue->number_of_items);
-  sprintf(destination, "%s\tmax_lenght: %i,\n", destination, queue->max_lenght);
-  sprintf(destination, "%s\tvalues: [", destination);
+  char destination[255] = "{";
+  sprintf(destination, "%s\"number_of_items\": %i,", destination, queue->number_of_items);
+  sprintf(destination, "%s\"max_lenght\": %i,", destination, queue->max_lenght);
+  sprintf(destination, "%s\"values\": [", destination);
   struct node * current_item = queue->first_item;
 
   // iterando
@@ -143,8 +143,8 @@ char *queue_to_string(struct queue_head *queue, char *returned) {
         sprintf(destination, "%s,", destination);
     }
   }
-  sprintf(destination, "%s ],\n", destination);
-  sprintf(destination, "%s}\n", destination);
+  sprintf(destination, "%s ]", destination);
+  sprintf(destination, "%s}", destination);
   //printf(destination);
   return strcpy(returned, destination);
 }
