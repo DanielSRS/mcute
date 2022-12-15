@@ -47,7 +47,13 @@ $ cd mcute
 $ cd IHM_Local
 
 # Execute a aplicação em modo de testes com makefile
-$ npm run dev:server
+$ 
 
 
 ```
+### 🛠 Tecnologias
+
+As seguintes ferramentas foram usadas na construção do projeto:
+
+- [MQTT](https://mqtt.org/)
+
