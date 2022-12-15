@@ -8,36 +8,38 @@
 #include "utils.h"            // await
 #include "menu.h"             // menu
 #include "help.h"
-//#include <lcd.h>
-#include <MQTTClient.h>
-//#include <wiringPi.h>
+#include <wiringPi.h>
 #include "mqtt.h"
 #include "queue.h"
-
-//USE WIRINGPI PIN NUMBERS
-#define LCD_RS  13               //Register select pin
-#define LCD_E   18               //Enable Pin
-#define LCD_D4  21               //Data pin D4
-#define LCD_D5  24               //Data pin D5
-#define LCD_D6  26               //Data pin D6
-#define LCD_D7  27               //Data pin D7
+#include <pthread.h>
 
 // Botões
 #define BUTTON_1 19
 #define BUTTON_2 23
 #define BUTTON_3 25
 
+void *myThreadFun(void *vargp) {
+  int state = 0;
+
+  while(1) {
+      if (isPressed(BUTTON_2) && state == 0) {
+        state = 1;
+      }
+      if (isPressed(BUTTON_1) && state == 0) {
+        state = 2;
+      }
+      if (isPressed(BUTTON_3)) {
+        state = 0;
+      }
+      await(1000);
+      printf("Estado: %i \n", state);
+  }
+}
+
 MQTTClient client;
-/*int lcd;
 
-void escreverEmDuasLinhas(char linha1[], char linha2[]) {
-        lcdHome(lcd);
-        lcdPuts(lcd, linha1);
-        lcdPosition(lcd,0,1);
-        lcdPuts(lcd, linha2);
-}*/
 
-//int isPressed(int btt);
+int isPressed(int btt);
 
 int get_number_of_digital_ios();
 char *getSubstring(char *dst, const char *src, size_t start, size_t end);
@@ -55,31 +57,36 @@ int add_digital_sensor(char *sensor_info, Sensor *digital);
  */
 int main(int argc, char *argv[]) {
     // Configuração inicial
-    init_display();                   // configura o display
-    init_display();
-    init_display();
-    clear_display();                  // Limpa o conteudo do diaplay
-    write_string("Iniciando");
-    uart_configure();                 // configura a uart
-    //wiringPiSetup();
-    //lcd = lcdInit (2, 16, 4, LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7,0,0,0,0);
-    //pinMode(BUTTON_1,INPUT);
-    //pinMode(BUTTON_2,INPUT);
-    //pinMode(BUTTON_3,INPUT);
+//    init_display();                   // configura o display
+ //   init_display();
+  //  init_display();
+  //  clear_display();                  // Limpa o conteudo do diaplay
+ //   write_string("Iniciando");
+//    uart_configure();                 // configura a uart
+    wiringPiSetup();
+    init_lcd();
 
-    //escreverEmDuasLinhas("     MI - SD    ", "Protocolo MQTT");
-    /*while (1) {
+    pinMode(BUTTON_1,INPUT);
+    pinMode(BUTTON_2,INPUT);
+    pinMode(BUTTON_3,INPUT);
+
+        /*
+    while (1) {
         //printf("no loop\n\n");
         isPressed(BUTTON_1);
         isPressed(BUTTON_2);
+        isPressed(BUTTON_3);
         //await(1000);
     }*/
+
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
     conn_opts.keepAliveInterval = 20;
     conn_opts.cleansession = 1;
     conn_opts.username = USERNAME;
     conn_opts.password = PASSWORD;
 
+    pthread_t thread_id;
+    pthread_create(&thread_id, NULL, myThreadFun, NULL);//pthread_join(thread_id, NULL);
     Sensor analogico;
     Sensor digital[31];
     int digitalQtd = 0;               // Quantidade de sensores digitais selecionados
@@ -320,7 +327,7 @@ int main(int argc, char *argv[]) {
       for (int i = 0; i < digitalQtd; i++) {
         struct queue_head *leituras = &(digital[i].values);
         int val = peek_value(leituras);
-        print_sensor_to_console(digital[i].name, val);  
+        print_sensor_to_console(digital[i].name, val);
         send_command(GET_DIGITAL_INPUT_VALUE, (char) digital[i].id);
         cmd[0] = GET_DIGITAL_INPUT_VALUE;
         cmd[1] = (char) digital[i].id;
@@ -543,7 +550,7 @@ int add_digital_sensor(char *sensor_info, Sensor *digital) {
 }
 
 
-/*
+
 int isPressed(int gpio_number){
   if(digitalRead(gpio_number) == 0) {
     await(100);
@@ -554,4 +561,18 @@ int isPressed(int gpio_number){
   }
   return 0;
 }
-*/
+
+
+/*int isPressed(int gpio_number){
+  while(digitalRead(gpio_number) == 0) {
+    //
+  }
+  if() {
+    await(100);
+    if(digitalRead(gpio_number) == 0){
+      printf("Pressed %d! \n", gpio_number);
+      return 1;
+    }
+  }
+  return 0;
+}*/

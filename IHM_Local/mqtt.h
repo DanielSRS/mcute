@@ -3,7 +3,7 @@
 #ifndef MQTT_H
 #define MQTT_H
 
-#define MQTT_ADDRESS "192.168.1.2"
+#define MQTT_ADDRESS "10.0.0.101"
 #define CLIENTID "98631145_c_client_paho_tcp"
 
 #define USERNAME "aluno"
