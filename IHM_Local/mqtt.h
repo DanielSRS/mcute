@@ -19,6 +19,7 @@ struct mqtt_context {
   Sensor *digitals;
   int *digitalQtd;
   MQTTClient_connectOptions *MQTT_CONFIG;
+  int update_blocked;
 };
 
 typedef struct mqtt_context ContextData;

@@ -19,20 +19,48 @@
 #define BUTTON_3 25
 
 void *myThreadFun(void *vargp) {
-  int state = 0;
+
+   ContextData *data = vargp;
+   
+   char cmd[20] = "\0\0\0\0";
+
+  printf("Não morreu ainda: \n");
 
   while(1) {
-      if (isPressed(BUTTON_2) && state == 0) {
-        state = 1;
+      /**
+       * Lê o sensor analogico
+       */
+      if (data->analogic->type == Analogic) { // Se existe um sensor analogico
+        struct queue_head *leituras = &(data->analogic->values);
+        cmd[0] = GET_ANALOG_INPUT_VALUE;
+        cmd[1] = GET_ANALOG_INPUT_VALUE;
+        //printf("Não analog cmd: \n");
+        publish(data->client, "comand", (char*) cmd);
+        await(20);
+        char history[255];
+
+        //printf("Não anl his: \n");
+        publish(data->client, "analogic/history", queue_to_string(leituras, &history));
+        await(20);
       }
-      if (isPressed(BUTTON_1) && state == 0) {
-        state = 2;
+
+      /**
+       */
+      for (int i = 0; i < *data->digitalQtd; i++) {
+        struct queue_head *leituras = &(data->digitals[i].values);
+        cmd[0] = GET_DIGITAL_INPUT_VALUE;
+        cmd[1] = (char) data->digitals[i].id;
+        //printf("Não dig cmd: \n");
+        publish(data->client, "comand", (char*) cmd);            // Solicita leitura do sensor
+        char history[255];
+        char topic[255];
+        sprintf(topic, "%i/history", cmd[1]);
+        //printf("Não dig his: \n");
+        await(20);
+        publish(data->client, topic, queue_to_string(leituras, &history));
+        await(20);                                                            // Aguarda comando ser processado
+        //serialReadBytes(ler);                                                   // lê resposta
       }
-      if (isPressed(BUTTON_3)) {
-        state = 0;
-      }
-      await(1000);
-      printf("Estado: %i \n", state);
   }
 }
 
@@ -85,8 +113,7 @@ int main(int argc, char *argv[]) {
     conn_opts.username = USERNAME;
     conn_opts.password = PASSWORD;
 
-    pthread_t thread_id;
-    pthread_create(&thread_id, NULL, myThreadFun, NULL);//pthread_join(thread_id, NULL);
+
     Sensor analogico;
     Sensor digital[31];
     int digitalQtd = 0;               // Quantidade de sensores digitais selecionados
@@ -301,53 +328,188 @@ int main(int argc, char *argv[]) {
 
     char cmd[2] = "OO";
 
+    pthread_t thread_id;
+    pthread_create(&thread_id, NULL, myThreadFun, &data);//pthread_join(thread_id, NULL);
+    
+    struct timeval start;
+    long long current_time;
+    long long elapsed_milliseconds;
+    int exibitionTime = 2000;
+    long long initial_time;
+
     while(1) {
       /**
        * Lê o sensor analogico
        */
+      gettimeofday(&start, NULL);
+      initial_time = start.tv_sec*1000LL + start.tv_usec/1000;    // tempo inicial em ms
       if (analogico.type == Analogic) { // Se existe um sensor analogico
         struct queue_head *leituras = &(analogico.values);
         int val = peek_value(leituras);
         print_sensor_to_console(analogico.name, val);
-        send_command(GET_ANALOG_INPUT_VALUE, GET_ANALOG_INPUT_VALUE);
+        //send_command(GET_ANALOG_INPUT_VALUE, GET_ANALOG_INPUT_VALUE);
         cmd[0] = GET_ANALOG_INPUT_VALUE;
         cmd[1] = GET_ANALOG_INPUT_VALUE;
         // solicita valor para a ESP
-        publish(data.client, "comand", (char*) cmd);
+        //publish(data.client, "comand", (char*) cmd);
         // publica historico de valores
         char history[255];
-        publish(data.client, "analogic/history", queue_to_string(leituras, &history));
-        await(1000);
+        //publish(data.client, "analogic/history", queue_to_string(leituras, &history));
+        //await(2000);
         //serialReadBytes(ler); // lê resposta
         //analogico.value = command_to_int(ler[1], ler[2]);
+        elapsed_milliseconds = 0;
+        while(elapsed_milliseconds <= exibitionTime) {
+          gettimeofday(&start, NULL);
+          current_time = start.tv_sec*1000LL + start.tv_usec/1000;            // tempo atual em ms
+          elapsed_milliseconds = current_time - initial_time;                 // tempo decorrido
+          if (isPressed(BUTTON_1)) {
+            printf("Historico do analogico\n\n");
+            data.update_blocked = 1;
+            int cdn = 1;
+            gettimeofday(&start, NULL);
+            initial_time = start.tv_sec*1000LL + start.tv_usec/1000;
+            int histIndex = 0;
+            while (cdn)
+            {
+              gettimeofday(&start, NULL);
+              current_time = start.tv_sec*1000LL + start.tv_usec/1000;            // tempo atual em ms
+              elapsed_milliseconds = current_time - initial_time;
+              
+              if (isPressed(BUTTON_2)) {
+                cdn = 0;
+              }
+
+              if (elapsed_milliseconds >= 2000) {
+                //print 
+                escreverEmDuasLinhas("hist.. analogico", "                ");
+                elapsed_milliseconds = 0;
+                gettimeofday(&start, NULL);
+                initial_time = start.tv_sec*1000LL + start.tv_usec/1000;
+                //analogico.values.
+
+                struct node * current_item = analogico.values.first_item;
+
+                // iterando
+                int i = 0;
+                while (current_item != NULL)
+                {
+                  if (histIndex >= analogico.values.number_of_items) {
+                    histIndex = 0;
+                    i = -1;
+                    current_item = analogico.values.first_item;
+                  }
+                  if (histIndex == i) {
+                    char hjk[16];
+                    sprintf(hjk, "%12i", current_item->value);
+                    printf("valor do analog %i - em:  %i - %i\n", current_item->value, histIndex, i);
+                    escreverEmDuasLinhas("hist.. analogico", hjk);
+                    current_item = NULL;
+                    histIndex++;
+                    i = -1;
+                  } else {
+                    current_item = current_item->next;
+                  }
+                  i++;
+                  
+                }
+              }
+            }
+            
+          }
+          //if (elapsed_milliseconds > 2000)
+        }
+        data.update_blocked = 0;
+        initial_time = current_time;
+        escreverEmDuasLinhas("                ", "                ");
+        printf("Saiu\n");
       }
 
       /**
        */
+      gettimeofday(&start, NULL);
+      initial_time = start.tv_sec*1000LL + start.tv_usec/1000;
       for (int i = 0; i < digitalQtd; i++) {
         struct queue_head *leituras = &(digital[i].values);
         int val = peek_value(leituras);
         print_sensor_to_console(digital[i].name, val);
-        send_command(GET_DIGITAL_INPUT_VALUE, (char) digital[i].id);
+        //send_command(GET_DIGITAL_INPUT_VALUE, (char) digital[i].id);
         cmd[0] = GET_DIGITAL_INPUT_VALUE;
         cmd[1] = (char) digital[i].id;
-        publish(data.client, "comand", (char*) cmd);            // Solicita leitura do sensor
+        //publish(data.client, "comand", (char*) cmd);            // Solicita leitura do sensor
         char history[255];
         char topic[255];
         sprintf(topic, "%i/history", cmd[1]);
-        printf("Topico: %s\n", topic);
-        publish(data.client, topic, queue_to_string(leituras, &history));
-        await(1000);                                                            // Aguarda comando ser processado
+        //printf("Topico: %s\n", topic);
+        //publish(data.client, topic, queue_to_string(leituras, &history));
+        elapsed_milliseconds = 0;
+        while(elapsed_milliseconds <= exibitionTime) {
+          gettimeofday(&start, NULL);
+          current_time = start.tv_sec*1000LL + start.tv_usec/1000;            // tempo atual em ms
+          elapsed_milliseconds = current_time - initial_time;                 // tempo decorrido
+          if (isPressed(BUTTON_1)) {
+            printf("Historico do digigal: %i\n\n", i);
+            data.update_blocked = 1;
+            int cdn2 = 1;
+            gettimeofday(&start, NULL);
+            initial_time = start.tv_sec*1000LL + start.tv_usec/1000;
+            int histIndex = 0;
+            while (cdn2)
+            {
+              gettimeofday(&start, NULL);
+              current_time = start.tv_sec*1000LL + start.tv_usec/1000;            // tempo atual em ms
+              elapsed_milliseconds = current_time - initial_time;
+              
+              if (isPressed(BUTTON_2)) {
+                cdn2 = 0;
+              }
+
+              if (elapsed_milliseconds >= 2000) {
+                //print 
+                escreverEmDuasLinhas("hist... digital ", "                ");
+                elapsed_milliseconds = 0;
+                gettimeofday(&start, NULL);
+                initial_time = start.tv_sec*1000LL + start.tv_usec/1000;
+                //analogico.values.
+
+                struct node * current_item = digital[i].values.first_item;
+
+                // iterando
+                int i = 0;
+                while (current_item != NULL)
+                {
+                  if (histIndex >= analogico.values.number_of_items) {
+                    histIndex = 0;
+                    i = -1;
+                    current_item = analogico.values.first_item;
+                  }
+                  if (histIndex == i) {
+                    char hjk[16];
+                    sprintf(hjk, "%12i", current_item->value);
+                    printf("valor do analog %i - em:  %i - %i\n", current_item->value, histIndex, i);
+                    escreverEmDuasLinhas("hist... digital ", hjk);
+                    current_item = NULL;
+                    histIndex++;
+                    i = -1;
+                  } else {
+                    current_item = current_item->next;
+                  }
+                  i++;
+                  
+                }
+              }
+            }
+            
+          }
+          //if (elapsed_milliseconds > 2000)
+        }
+        data.update_blocked = 0;
+        initial_time = current_time;
+        escreverEmDuasLinhas("                ", "                ");
+        printf("Saiu digital\n");                                                      // Aguarda comando ser processado
         //serialReadBytes(ler);                                                   // lê resposta
 
-        if (0) {                                                     // Se houve erro na leitura
-          printf("NodeMCU com problema. Endereço do sensor é inválido!\n");
-          clear_display();
-          write_string("NodeMCU com erro");
-        } else {                                                                // Se lido com sucesso
-          //digital[i].value = ler[1] - '0';                                         // salva o valor lido
-          //print_sensor_to_console(digital[i].name, digital[i].value);           // Exibe informações lidas
-        }
+
       }
 
       if (analogico.type != Analogic && digitalQtd < 1) {                       // Se não houver nenhum sensor
