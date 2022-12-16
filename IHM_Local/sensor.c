@@ -2,6 +2,8 @@
 #include <lcd.h>
 #include <stdio.h> // sprintf, printf
 
+void escreverEmDuasLinhas(char linha1[], char linha2[]);
+
 void print_sensor_to_console(char *sensor_name, int sensor_value) {
   char str[16];
   sprintf(str, "%9s: %4i", sensor_name, sensor_value);

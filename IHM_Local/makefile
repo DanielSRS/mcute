@@ -10,7 +10,7 @@ list: all
 all: Rasp
 
 Rasp: Rasp.o display.o serial.o comunication.o sensor.o utils.o menu.o terminal.o help.o mqtt.o queue.o
-		gcc main.o display.o serial.o comunication.o sensor.o lcd.o utils.o menu.o terminal.o help.o mqtt.o queue.o -o Rasp -l paho-mqtt3c
+		gcc main.o display.o serial.o comunication.o sensor.o lcd.o utils.o menu.o terminal.o help.o mqtt.o queue.o -o Rasp -l paho-mqtt3c -l pthread -Wall
 
 Rasp.o: main.c
 		gcc -c main.c -o main.o

@@ -36,12 +36,20 @@ void *myThreadFun(void *vargp) {
         cmd[1] = GET_ANALOG_INPUT_VALUE;
         //printf("Não analog cmd: \n");
         publish(data->client, "comand", (char*) cmd);
-        await(20);
+        await(*data->update_interval);
         char history[255];
 
         //printf("Não anl his: \n");
         publish(data->client, "analogic/history", queue_to_string(leituras, &history));
-        await(20);
+        await(*data->update_interval);
+      }
+
+      if (1) {
+        char up[20] = "\0\0\0\0\0\0\0";
+        sprintf(up, "%i", *data->update_interval);
+        publish(data->client, "update_interval", up);
+        up[20] = "\0\0\0\0\0\0\0";
+        await(*data->update_interval);
       }
 
       /**
@@ -56,9 +64,9 @@ void *myThreadFun(void *vargp) {
         char topic[255];
         sprintf(topic, "%i/history", cmd[1]);
         //printf("Não dig his: \n");
-        await(20);
+        await(*data->update_interval);
         publish(data->client, topic, queue_to_string(leituras, &history));
-        await(20);                                                            // Aguarda comando ser processado
+        await(*data->update_interval);                                                         // Aguarda comando ser processado
         //serialReadBytes(ler);                                                   // lê resposta
       }
   }
@@ -112,6 +120,7 @@ int main(int argc, char *argv[]) {
     conn_opts.cleansession = 1;
     conn_opts.username = USERNAME;
     conn_opts.password = PASSWORD;
+    int hhtt = 20;
 
 
     Sensor analogico;
@@ -122,6 +131,7 @@ int main(int argc, char *argv[]) {
     data.digitals = digital;
     data.digitalQtd = &digitalQtd;
     data.verif = 753;
+    data.update_interval = &hhtt;
     data.MQTT_CONFIG = &conn_opts;
 
 
@@ -135,6 +145,7 @@ int main(int argc, char *argv[]) {
       printf("conectado!!\n\n");
     }
     MQTTClient_subscribe(data.client, MQTT_SUBSCRIBE_TOPIC, 0);
+    MQTTClient_subscribe(data.client, "nwUP", 0);
     printf("Fim da configuração do mqtt em: %p\n", &data);
     /*****************************************************************/
 
