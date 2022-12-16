@@ -99,6 +99,11 @@ int on_message(void *context, char *topicName, int topicLen, MQTTClient_message 
     /* Faz echo da mensagem recebida */
     //publish(data->client, MQTT_PUBLISH_TOPIC, payload);
 
+
+    if (strcmp("nwUP", topicName) == 0) {
+        int nnn = atoi(payload);
+        *data->update_interval = nnn;
+    }
     MQTTClient_freeMessage(&message);
     //MQTTClient_free(topicName);
     return 1;
