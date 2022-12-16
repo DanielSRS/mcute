@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "windows": "react-native run-windows",
     "build:web": "rm -rf dist/ && webpack --mode=production --config webpack.config.js",
-    "web": "webpack serve --mode=development --config web/webpack.config.js"
+    "web": "webpack serve --host 0.0.0.0 --mode=development --config web/webpack.config.js"
   },
   "dependencies": {
     "@react-navigation/drawer": "^6.5.3",
