@@ -205,6 +205,11 @@ Nesta seção haverão instruções caso você queira editar o projeto, explican
 
 [Termios Library](https://pubs.opengroup.org/onlinepubs/7908799/xsh/termios.h.html)
 
+Autores
+=======
+| [<img src="https://avatars.githubusercontent.com/u/38389307?v=4" width=115><br><sub>Alexandre Silva Caribé</sub>](https://github.com/AlexandreCaribe) | [<img src="https://avatars.githubusercontent.com/u/83670712?v=4" width=115><br><sub>Alisson Bonfim Silva</sub>](https://github.com/absilva21) | [<img src="https://avatars.githubusercontent.com/u/39845798?v=4" width=115><br><sub>Daniel Santa Rosa Santos</sub>](https://github.com/DanielSRS) |  [<img src="https://avatars.githubusercontent.com/u/88436328?v=4" width=115><br><sub>Joanderson Santos</sub>](https://github.com/Joanderson90) |
+| :---: | :---: | :---: | :---: |
+
 ## Contribuição
 
 - Quaisquer dúvidas, sugestões ou problemas que encontrar, fique livre para abrir uma issue.
