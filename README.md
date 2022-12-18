@@ -1,12 +1,3 @@
-<!-- PROJECT LOGO -->
-## Sobre o projeto
-Projeto de sensor analógico/digital em microcontrolador utilizando comunicação serial.
-
-Implementando de um protótipo de sistema de sensoriamento genérico de uma plataforma baseada na NodeMCU para confecção das unidades de sensoriamento modular comandado por um Single Board Computer (SBC), capaz de controlar o acionamento de um conjunto variável de sensores, assim como monitorar o seu funcionamento, de forma automatizada por meio de uma comunicação UART
-<br />
-
-<br>
-
 <!-- TABLE OF CONTENTS -->
 
 ## Tabela de Conteúdo
@@ -15,9 +6,9 @@ Implementando de um protótipo de sistema de sensoriamento genérico de uma plat
 - [Sobre o Projeto](#sobre-o-projeto)
    - [O problema](#)
    - [Requisitos](#)
-   - [Arquitetura da soluçao](#)
+   - [Arquitetura da soluçao](#arquitetura)
       - [Diagrama geral da solução](#)
-      - [Diagrama da SBC](#)
+      - [Diagrama da SBC](#diagrama-de-estados-da-sbc)
       - [Diagrama da NODE_MCU](#)
       - [Diagrama de sequencia](#)
       - [Formato das mensagens do historico](#interface-dos-dados-enviados-nos-topicos-de-historico)
@@ -33,6 +24,53 @@ Implementando de um protótipo de sistema de sensoriamento genérico de uma plat
 - [Autores](#autores)
 - [Materiais de referência](#materiais-de-referência)
 - [Contribuição](#contribui%C3%A7%C3%A3o)
+
+<!-- PROJECT LOGO -->
+## Sobre o projeto
+Projeto de sensor analógico/digital em microcontrolador utilizando comunicação serial.
+
+Implementando de um protótipo de sistema de sensoriamento genérico de uma plataforma baseada na NodeMCU para confecção das unidades de sensoriamento modular comandado por um Single Board Computer (SBC), capaz de controlar o acionamento de um conjunto variável de sensores, assim como monitorar o seu funcionamento, de forma automatizada por meio de uma comunicação UART
+<br />
+
+### Arquitetura
+
+### Diagrama de estados da SBC
+
+```mermaid
+stateDiagram-v2
+  [*] --> RealTimeUpdate
+  [*] --> Publishing
+  State RealTimeUpdate {
+  TempoReal:  Leituras em tempo real
+        note left of TempoReal
+            Exibição em tempo real das 
+            leituras dos sensores
+        end note
+
+  [*] --> TempoReal
+TempoReal --> Histórico: Botão 1
+
+  Histórico:  Histórico
+        note right of Histórico
+            Histórico das ultimas leituras do sensor
+            exibido no display no momento do
+            pressionar do botão 1
+        end note
+    Histórico --> TempoReal: Botão 2
+}
+
+  State Publishing {
+[*] --> Publicações
+  Publicações:  Publicações
+        note right of Publicações
+            - Requisições dos valores dos sensores
+            - Publicação dos históricos de leituras
+            e velocidade de atualização
+        end note
+}
+```
+
+<br>
 
 <!-- ABOUT THE PROJECT -->
 
