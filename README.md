@@ -20,6 +20,7 @@ Implementando de um protótipo de sistema de sensoriamento genérico de uma plat
       - [Diagrama da SBC](#)
       - [Diagrama da NODE_MCU](#)
       - [Diagrama de sequencia](#)
+      - [Formato das mensagens do historico](#interface-dos-dados-enviados-nos-topicos-de-historico)
 - [Feito Com](#feito-com)
 - [Começando](#come%C3%A7ando)
   - [Pré-requisitos](#pr%C3%A9-requisitos)
@@ -36,6 +37,49 @@ Implementando de um protótipo de sistema de sensoriamento genérico de uma plat
 <!-- ABOUT THE PROJECT -->
 
 <br>
+
+## Interface dos dados enviados nos topicos de historico
+
+As mensagens enviadas pela SBC aos topicos de historico:
+   - analogic/history
+   - 5/history
+   - 16/history
+
+são formatadas como strings em formato [JSON((JavaScript Object Notation))](https://www.json.org/json-en.html). Como por exemplo:
+
+```JSON
+{"number_of_items": 10,"max_lenght": 10,"values": [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]}
+```
+Segue, em typescript, a descrição de cada atributo da resposta
+
+```typescript
+/**
+ * Interface (em typescript) dos dados enviados nos
+ * topicos dos historicos de leituras dos sensores digitais
+ * e analogico
+ */
+export interface history {
+   /**
+    * Quntidade de leituras atualmente no historico.
+    */
+  number_of_items: number
+  /** 
+   * Quantidade maxima de leituras no historico
+   */
+  max_lenght: number // 10 leituras atualmente
+  /**
+   * Lista dos ultimos valores lidos do sensor.
+   * O primeiro valor da lista representa a leitura mais recente
+   */
+  values: number[]
+}
+```
+
+Por padrão, number_of_items sempre tem no minimo tamanho 1, pois na SBC cada lista é inicializada com 1 leitura de valor zero. ou seja:
+
+```typescript
+values: number[] = [ 0 ];
+```
 
 ## Feito Com
 
