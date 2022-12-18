@@ -157,6 +157,10 @@ https://arduino.esp8266.com/stable/package_esp8266com_index.json
 
 ![Captura de tela_20221118_144840](https://user-images.githubusercontent.com/39845798/202769949-31b1df48-23b3-4089-b06a-dae98be37bbe.png)
 
+4. Em seguida, abra o gerenciador de bibliotecas e instale a biblioteca PubSubClient by Nick O'Leary, como na imagem:
+
+![instalarpubsub](https://user-images.githubusercontent.com/39845798/208325870-813796ce-8b16-49b9-b02b-99dd00e62385.png)
+
 ### Estrutura de Arquivos
 
 A estrutura de arquivos está da seguinte maneira:
@@ -178,11 +182,11 @@ Serão explicados os arquivos e diretórios na seção de [Edição](#edição).
 
 ### Instalação na NodeMCU
 
-1.  Abra a ide do Arduino
+1. Abra a ide do Arduino
 2. Abra o menu: Ferramentas > Placa e selecione a placa NodeMCU 1.0
-3.  Conecte a NodeMCU ao computador via usb
-4.  Selecione a porta no menu: Ferramentas > Porta
-5. Copie o codigo do arquivo NodeMCU.cpp para o editor da IDE
+3. Conecte a NodeMCU ao computador via usb
+4. Copie o diretorio NodeMCU para dentro do diretorio de projetos do arduino, abra a IDE e abra o arquivo NodeMCU.ino. Copile e carrege o codigo na ESP8266
+5. Selecione a porta no menu: Ferramentas > Porta
 6. Carregue o codigo na placa (Ctrl + u)
 
 ### Instalação na SBC
@@ -190,21 +194,22 @@ Serão explicados os arquivos e diretórios na seção de [Edição](#edição).
 1. Na SBC, faça clone do projeto utilizando o comando e navegue para o diretório raiz do projeto:
 
 ```sh
-$ git clone https://github.com/DanielSRS/ESP8266_ES
-$ cd ESP8266_ES
+$ git clone https://github.com/DanielSRS/mcute
+$ cd mcute
 ```
 
 7. Navegue até o diretório que contém o código a ser executado na SBC e faça build:
 
 ```sh
-$ cd Raspberry
-$ make all
+cd IHM_Local
+make mock
+make all
 ```
 
 8. Execute a aplicação
 
 ```sh
-$ make run
+make run
 ```
 
 ### Edição
@@ -215,7 +220,7 @@ Nesta seção haverão instruções caso você queira editar o projeto, explican
 
   - **NodeMCU.cpp** - Codigo da aplicação executada na NodeMCU responsável por interpretar os comandos enviados pela SBC, realizar a leitura dos sensores e enviar atraves da UART as informações solicitadas
 
-- **Raspberry** - Diretório contendo todos os arquivos da aplicação executada na SBC (Raspberry Pi),
+- **IHM_Local** - Diretório contendo todos os arquivos da aplicação executada na SBC (Raspberry Pi),
 
   - **main.c** - Codigo da aplicação executada na SBC e responsável pelo controle da NodeMCU enviando comandos, lendo e exibindo as informações coletadas.
 
@@ -234,18 +239,19 @@ Nesta seção haverão instruções caso você queira editar o projeto, explican
 - Ainda no diretório raiz, navegue para o diretorio Raspberry:
 
   ```sh
-  $ cd Raspberry
+  cd IHM_Local
   ```
 - Faça o build da aplicação
 
   ```sh
-  $ make all
+  make mock
+  make all
   ```
 
 - Faça o build e rode a aplicação
 
   ```sh
-  $ make run
+  make run
   ```
 
 - Execute manualmente a aplicação informando o sensor analógico e dois digitais conectados
@@ -253,12 +259,6 @@ Nesta seção haverão instruções caso você queira editar o projeto, explican
   ```sh
   $ sudo ./Rasp -analogic -d."D0".16 -d."D1".5
   ```
-- Ou liste as portas digitais disponíveis 
-
-  ```sh
-  $ sudo ./Rasp -l
-  ```
-
 
 <br>
 
