@@ -412,7 +412,7 @@ int main(int argc, char *argv[]) {
                   }
                   if (histIndex == i) {
                     char hjk[16];
-                    sprintf(hjk, "%12i", current_item->value);
+                    sprintf(hjk, "%i/%i %5i", i + 1, analogico.values.number_of_items, current_item->value);
                     printf("valor do analog %i - em:  %i - %i\n", current_item->value, histIndex, i);
                     escreverEmDuasLinhas("hist.. analogico", hjk);
                     current_item = NULL;
@@ -486,26 +486,26 @@ int main(int argc, char *argv[]) {
                 struct node * current_item = digital[i].values.first_item;
 
                 // iterando
-                int i = 0;
+                int j = 0;
                 while (current_item != NULL)
                 {
                   if (histIndex >= analogico.values.number_of_items) {
                     histIndex = 0;
-                    i = -1;
+                    j = -1;
                     current_item = analogico.values.first_item;
                   }
-                  if (histIndex == i) {
+                  if (histIndex == j) {
                     char hjk[16];
-                    sprintf(hjk, "%12i", current_item->value);
-                    printf("valor do analog %i - em:  %i - %i\n", current_item->value, histIndex, i);
+                    sprintf(hjk, "%i/%i %5i", j + 1, digital[i].values.number_of_items, current_item->value);
+                    printf("valor do digital %i - em:  %i - %i\n", current_item->value, histIndex, j);
                     escreverEmDuasLinhas("hist... digital ", hjk);
                     current_item = NULL;
                     histIndex++;
-                    i = -1;
+                    j = -1;
                   } else {
                     current_item = current_item->next;
                   }
-                  i++;
+                  j++;
                   
                 }
               }
