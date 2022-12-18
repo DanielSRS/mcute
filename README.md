@@ -1,59 +1,203 @@
-# Problema #3 – IoT: A Internet das Coisas 
+<!-- PROJECT LOGO -->
+## Sobre o projeto
+Projeto de sensor analógico/digital em microcontrolador utilizando comunicação serial.
 
-## Descrição do Projeto
-<p align="center">Este documento descreve a utilização de um sistema baseado na internet das coisas (IOT).</p>
+Implementando de um protótipo de sistema de sensoriamento genérico de uma plataforma baseada na NodeMCU para confecção das unidades de sensoriamento modular comandado por um Single Board Computer (SBC), capaz de controlar o acionamento de um conjunto variável de sensores, assim como monitorar o seu funcionamento, de forma automatizada por meio de uma comunicação UART
+<br />
 
-Table of contents
-=================
+<br>
 
-<!--ts-->
-   * [Instalação](#instalação)
-   * [Usage](#usage)
-      * [STDIN](#stdin)
-      * [Local files](#local-files)
-      * [Remote files](#remote-files)
-      * [Multiple files](#multiple-files)
-      * [Combo](#combo)
-      * [Auto insert and update TOC](#auto-insert-and-update-toc)
-      * [GitHub token](#github-token)
-      * [TOC generation with Github Actions](#toc-generation-with-github-actions)
-   * [Tests](#tests)
-   * [Dependency](#dependency)
-   * [Docker](#docker)
-     * [Local](#local)
-     * [Public](#public)
-<!--te-->
+<!-- TABLE OF CONTENTS -->
 
+## Tabela de Conteúdo
 
-Instalação
-============
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Tabela de Conteúdo](#tabela-de-conte%C3%BAdo)
+- [Feito Com](#feito-com)
+- [Começando](#come%C3%A7ando)
+  - [Pré-requisitos](#pr%C3%A9-requisitos)
+  - [Estrutura de Arquivos](#estrutura-de-arquivos)
+  - [Instalação](#instala%C3%A7%C3%A3o)
+  - [Linting](#edi%C3%A7%C3%A3o)
+  - [Edição](#edi%C3%A7%C3%A3o)
+  - [Executar projeto](#executar-projeto)
+- [Autores](#autores)
+- [Materiais de referência](#materiais-de-referência)
+- [Contribuição](#contribui%C3%A7%C3%A3o)
+
+<!-- ABOUT THE PROJECT -->
+
+<br>
+
+## Feito Com
+
+Abaixo segue o que foi utilizado na criação deste projeto:
+
+- [GCC (GNU Compiler Collection)](https://gcc.gnu.org/) - O GNU Compiler Collection é um conjunto de compiladores de linguagens de programação produzido pelo projecto GNU.
+- [ESP8266 SDK para Arduino](https://github.com/esp8266/Arduino) - Este projeto traz suporte ao chip ESP8266 para o ambiente Arduino.
+- [Arduino IDE v1.8](https://www.arduino.cc/en/software) - O Arduino Software (IDE) de código aberto facilita a escrita de código e o upload para a placa. Este software pode ser usado com qualquer placa Arduino.
+
+<br>
+
+<!-- GETTING STARTED -->
+
+## Começando
+
+Para conseguir rodar o projeto, siga os passos abaixo.
 
 ### Pré-requisitos
 
-Antes de começar, você vai precisar ter instalado em sua máquina as seguintes ferramentas:
-[Git](https://git-scm.com), [Paho MQTT](https://github.com/eclipse/paho.mqtt.c). 
+Antes de seguirmos, é preciso que você tenha o ambiente configurado para criar e testar aplicações em C. 
 
-
-### 🎲 Rodando o projeto
-
-```bash
-# Clone este repositório
-$ git clone <https://github.com/DanielSRS/mcute>
-
-# Acesse a pasta do projeto no terminal/cmd
-$ cd mcute
-
-# Vá para a pasta IHM
-$ cd IHM_Local
-
-# Execute a aplicação em modo de testes com makefile
-$ 
-
+No ambiente da SBC (considerando a Raspberry Pi rodando um sistema baseado no Debian) caso não tenha o tooling to GCC, execute:
 
 ```
-### 🛠 Tecnologias
+$ sudo apt install build-essential
+```
+1. Instale a IDE do Arduino na versão 1.8 de acordo com a [documentação oficial](https://www.arduino.cc/en/software)
+2. Abra as preferências da IDE e adicione o código abaixo, assim como na imagem e pressione o botão de OK
 
-As seguintes ferramentas foram usadas na construção do projeto:
+```
+https://arduino.esp8266.com/stable/package_esp8266com_index.json
+```
 
-- [MQTT](https://mqtt.org/)
+ ![Captura de tela_20221118_144353](https://user-images.githubusercontent.com/39845798/202769027-3c90d7e9-46e7-466c-a4ce-e1c3c5729711.png)
 
+3. Em seguida, abra o gerenciador de placas da IDE e instale o Generic ESP8266 Module na versão 3.0.2, como na imagem:
+
+![Captura de tela_20221118_144840](https://user-images.githubusercontent.com/39845798/202769949-31b1df48-23b3-4089-b06a-dae98be37bbe.png)
+
+### Estrutura de Arquivos
+
+A estrutura de arquivos está da seguinte maneira:
+
+```bash
+ESP8266_ES
+├── NodeMCU/
+│   ├── NodeMCU.cpp
+├── Raspberry/
+│   ├── display.h
+│   ├── makefile
+│   ├── display.o
+│   └── main.c
+├── .gitignore
+└── README.md
+```
+
+Serão explicados os arquivos e diretórios na seção de [Edição](#edição).
+
+### Instalação na NodeMCU
+
+1.  Abra a ide do Arduino
+2. Abra o menu: Ferramentas > Placa e selecione a placa NodeMCU 1.0
+3.  Conecte a NodeMCU ao computador via usb
+4.  Selecione a porta no menu: Ferramentas > Porta
+5. Copie o codigo do arquivo NodeMCU.cpp para o editor da IDE
+6. Carregue o codigo na placa (Ctrl + u)
+
+### Instalação na SBC
+
+1. Na SBC, faça clone do projeto utilizando o comando e navegue para o diretório raiz do projeto:
+
+```sh
+$ git clone https://github.com/DanielSRS/ESP8266_ES
+$ cd ESP8266_ES
+```
+
+7. Navegue até o diretório que contém o código a ser executado na SBC e faça build:
+
+```sh
+$ cd Raspberry
+$ make all
+```
+
+8. Execute a aplicação
+
+```sh
+$ make run
+```
+
+### Edição
+
+Nesta seção haverão instruções caso você queira editar o projeto, explicando para que os diretórios são utilizados e também os arquivos de configuração.
+
+- **NodeMCU** - Após execução do projeto, o analizador léxico irá gerar arquivos de saída neste diretório contendo as informações processadas em cada arquivo de entrada.
+
+  - **NodeMCU.cpp** - Codigo da aplicação executada na NodeMCU responsável por interpretar os comandos enviados pela SBC, realizar a leitura dos sensores e enviar atraves da UART as informações solicitadas
+
+- **Raspberry** - Diretório contendo todos os arquivos da aplicação executada na SBC (Raspberry Pi),
+
+  - **main.c** - Codigo da aplicação executada na SBC e responsável pelo controle da NodeMCU enviando comandos, lendo e exibindo as informações coletadas.
+
+  - **makefile** - Arquivo de configuração makefile com as instruções de build do projeto.
+
+  - **display.h** - Arquivo de cabeçalho da biblioteca de comunicação com o display 16x2.
+
+  - **display.o** - Biblioteca para comunicação com o display 16x2.
+
+- **.gitignore** - Arquivo de configurção do git contendo informções de arquivos que não devem ser versionados junto com o codigo fonte;
+
+- **README.md** -  Este arquivo. Aqui é feito a documentação basica do projeto com instruções de instalação, configuração e execução.
+
+## Executar projeto (na SBC)
+
+- Ainda no diretório raiz, navegue para o diretorio Raspberry:
+
+  ```sh
+  $ cd Raspberry
+  ```
+- Faça o build da aplicação
+
+  ```sh
+  $ make all
+  ```
+
+- Faça o build e rode a aplicação
+
+  ```sh
+  $ make run
+  ```
+
+- Execute manualmente a aplicação informando o sensor analógico e dois digitais conectados
+
+  ```sh
+  $ sudo ./Rasp -analogic -d."D0".16 -d."D1".5
+  ```
+- Ou liste as portas digitais disponíveis 
+
+  ```sh
+  $ sudo ./Rasp -l
+  ```
+
+
+<br>
+
+## Materiais de referência
+[Raspberry Pi Documentation](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-zero-w)
+
+[Display LCD HD44780U](https://www.google.com/url?sa=t&source=web&rct=j&url=https://www.sparkfun.com/datasheets/LCD/HD44780.pdf&ved=2ahUKEwjso46tlqn6AhVGL7kGHSe6BMEQFnoECGIQAQ&usg=AOvVaw076YT-P88DM3oFFvTDUv43)
+
+[BCM2835 ARM Peripherals](https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf)
+
+[ESP8266 Arduino Core Documentation](https://readthedocs.org/projects/arduino-esp8266/downloads/pdf/latest/)
+
+[Documentação de Referência da Linguagem Arduino](https://www.arduino.cc/reference/pt/)
+
+[ESP8266WiFi library](https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html)
+
+[ESP8266mDNS library](https://www.arduino.cc/reference/en/libraries/esp8266_mdns/)
+
+[WifiUdp library](https://www.arduino.cc/reference/en/libraries/wifi/wifiudp/)
+
+[ArduinoOTA](https://www.arduino.cc/reference/en/libraries/arduinoota/)
+
+[SoftwareSerial Library](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjSluW4ypz7AhU_kZUCHbP9C5kQFnoECAoQAQ&url=https%3A%2F%2Fwww.arduino.cc%2Fen%2FReference%2FsoftwareSerial&usg=AOvVaw2kUbQNvvMDReS_1LIPB82g)
+
+[HardwareSerial Library](https://github.com/espressif/arduino-esp32/blob/master/cores/esp32/HardwareSerial.h)
+
+[Termios Library](https://pubs.opengroup.org/onlinepubs/7908799/xsh/termios.h.html)
+
+## Contribuição
+
+- Quaisquer dúvidas, sugestões ou problemas que encontrar, fique livre para abrir uma issue.
+- Se quiser contribuir ajustando o codigo, implementando novas funcionalidas ou corrigindo bugs, faça um fork do projeto, faça as alterações nescessárias como descrito na seção de [Edição](#edição) e abra um pull request
