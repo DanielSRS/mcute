@@ -146,13 +146,21 @@ Para conseguir rodar o projeto, siga os passos abaixo.
 
 ### Pré-requisitos
 
-Antes de seguirmos, é preciso que você tenha o ambiente configurado para criar e testar aplicações em C. 
+Antes de seguirmos, é preciso que você tenha o ambiente configurado para criar e testar aplicações em C, bem como o ambiente para desenvolvimento React Native configurado (para compilar o IHM_Remoto).
+
+ - Configure o ambiente react native seguindo a [documentação oficial](https://reactnative.dev/docs/environment-setup)
+ - Configure o ambiente react native for windows (para fazer build da aplicação desktop para windows) seguindo a [documentação oficial](https://microsoft.github.io/react-native-windows/docs/rnw-dependencies)
+ - Certifique-se de ter o gerenciador de dependencias Yarn instalado na versão 1. [instruções de instalação](https://classic.yarnpkg.com/en/docs/install#mac-stable)
 
 No ambiente da SBC (considerando a Raspberry Pi rodando um sistema baseado no Debian) caso não tenha o tooling to GCC, execute:
 
 ```
 $ sudo apt install build-essential
 ```
+Instale também na SBC o [Paho MQTT](https://github.com/eclipse/paho.mqtt.c) e WiringPI
+
+<br />
+
 1. Instale a IDE do Arduino na versão 1.8 de acordo com a [documentação oficial](https://www.arduino.cc/en/software)
 2. Abra as preferências da IDE e adicione o código abaixo, assim como na imagem e pressione o botão de OK
 
@@ -207,7 +215,7 @@ $ git clone https://github.com/DanielSRS/mcute
 $ cd mcute
 ```
 
-7. Navegue até o diretório que contém o código a ser executado na SBC e faça build:
+2. Navegue até o diretório que contém o código a ser executado na SBC e faça build:
 
 ```sh
 cd IHM_Local
@@ -215,10 +223,50 @@ make mock
 make all
 ```
 
-8. Execute a aplicação
+3. Execute a aplicação
 
 ```sh
 make run
+```
+
+### Instalação do IHM_Remoto
+
+1. Na maquina onde há a configuração do ambiente de desenvolvimento React Native:
+
+```sh
+git clone https://github.com/DanielSRS/mcute
+cd mcute
+```
+
+2. Navegue até o diretório que contém o código a das aplicações Android, IOS, Web e Windows e faça build:
+
+```sh
+cd IHM_Remote
+yarn
+```
+
+3. Execute a aplicação web
+
+```sh
+yarn web
+```
+
+5. Ou a aplicação android
+
+```sh
+yarn android
+```
+
+6. Ou a aplicação IOS
+
+```sh
+yarn ios
+```
+
+6. Ou a aplicação windows
+
+```sh
+yarn windows
 ```
 
 ### Edição
