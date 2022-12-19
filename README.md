@@ -24,9 +24,9 @@
 
 <!-- PROJECT LOGO -->
 ## Sobre o projeto
-Projeto de sensor analógico/digital em microcontrolador utilizando comunicação serial.
+Projeto de sensor analógico/digital em microcontrolador utilizando comunicação mqtt.
 
-Implementando de um protótipo de sistema de sensoriamento genérico de uma plataforma baseada na NodeMCU para confecção das unidades de sensoriamento modular comandado por um Single Board Computer (SBC), capaz de controlar o acionamento de um conjunto variável de sensores, assim como monitorar o seu funcionamento, de forma automatizada por meio de uma comunicação UART
+Implementando de um protótipo de sistema de sensoriamento genérico de uma plataforma baseada na NodeMCU para confecção das unidades de sensoriamento modular comandado por um Single Board Computer (SBC), capaz de controlar o acionamento de um conjunto variável de sensores, assim como monitorar o seu funcionamento, de forma automatizada por meio de uma comunicação MQTT
 <br />
 
 ## Arquitetura
