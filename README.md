@@ -7,20 +7,17 @@
    - [O problema](#)
    - [Requisitos](#)
    - [Arquitetura da soluçao](#arquitetura)
-      - [Diagrama geral da solução](#)
+      - [Diagrama geral da solução](#diagrama-geral-da-solucao)
       - [Diagrama da SBC](#diagrama-de-estados-da-sbc)
-      - [Diagrama da NODE_MCU](#)
-      - [Diagrama de sequencia](#)
+      - [Diagrama de sequencia](#diagrama-de-sequencia)
       - [Formato das mensagens do historico](#interface-dos-dados-enviados-nos-topicos-de-historico)
 - [Feito Com](#feito-com)
 - [Começando](#come%C3%A7ando)
   - [Pré-requisitos](#pr%C3%A9-requisitos)
   - [Estrutura de Arquivos](#estrutura-de-arquivos)
-  - [Instalação](#instala%C3%A7%C3%A3o)
+  - [Instalação](#instalacao-na-nodemcu)
   - [Edição](#edi%C3%A7%C3%A3o)
-  - [Executar projeto](#executar-projeto)
-- [Testes](#autores)
-- [Possiveis melhorias](#autores)
+  - [Executar projeto](#executar-projeto-na-sbc)
 - [Autores](#autores)
 - [Materiais de referência](#materiais-de-referência)
 - [Contribuição](#contribui%C3%A7%C3%A3o)
@@ -32,7 +29,15 @@ Projeto de sensor analógico/digital em microcontrolador utilizando comunicaçã
 Implementando de um protótipo de sistema de sensoriamento genérico de uma plataforma baseada na NodeMCU para confecção das unidades de sensoriamento modular comandado por um Single Board Computer (SBC), capaz de controlar o acionamento de um conjunto variável de sensores, assim como monitorar o seu funcionamento, de forma automatizada por meio de uma comunicação UART
 <br />
 
-### Arquitetura
+## Arquitetura
+
+A solução desenvolvida foi arquitetada da seguinte maneira:
+
+<br />
+
+### Diagrama geral da solucao
+
+![](https://cdn.discordapp.com/attachments/1054100882976940186/1054144203162140672/Untitled_5_3.vpd_3.jpg)
 
 ### Diagrama de estados da SBC
 
@@ -69,6 +74,10 @@ TempoReal --> Histórico: Botão 1
         end note
 }
 ```
+
+### Diagrama de sequencia 
+
+![Fluxo drawio](https://user-images.githubusercontent.com/39845798/208326509-c8b0ccbe-eb32-437c-a002-f32800f1a620.png)
 
 <br>
 
@@ -180,7 +189,7 @@ ESP8266_ES
 
 Serão explicados os arquivos e diretórios na seção de [Edição](#edição).
 
-### Instalação na NodeMCU
+### Instalacao na NodeMCU
 
 1. Abra a ide do Arduino
 2. Abra o menu: Ferramentas > Placa e selecione a placa NodeMCU 1.0
@@ -234,7 +243,7 @@ Nesta seção haverão instruções caso você queira editar o projeto, explican
 
 - **README.md** -  Este arquivo. Aqui é feito a documentação basica do projeto com instruções de instalação, configuração e execução.
 
-## Executar projeto (na SBC)
+## Executar projeto na SBC
 
 - Ainda no diretório raiz, navegue para o diretorio Raspberry:
 
