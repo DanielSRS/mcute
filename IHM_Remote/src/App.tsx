@@ -24,7 +24,7 @@ interface history {
   values: number[];
 }
 
-const client = new Paho.Client('192.168.1.2', 9001, '', Date.now().toString());
+const client = new Paho.Client('10.0.0.101', 9001, '', Date.now().toString());
 
 const App = () => {
   const [latestData, setLatestData] = useState([{ value: 0 }]);
@@ -138,6 +138,26 @@ const App = () => {
   };
 
   const unusableArea = 35 + 40 + 36;
+
+  const turnOnLed = () => {
+    const buffer = new ArrayBuffer(3);
+    const charArray = new Uint8Array(buffer);
+    //charArray.set(0, 0x2);
+    charArray[0] = 0x06;
+    charArray[1] = 0x06;
+    charArray[2] = 0x06;
+    client.publish('comand', charArray, 2, false);
+  };
+
+  const turnOfLed = () => {
+    const buffer = new ArrayBuffer(3);
+    const charArray = new Uint8Array(buffer);
+    //charArray.set(0, 0x2);
+    charArray[0] = 0x09;
+    charArray[1] = 0x09;
+    charArray[2] = 0x09;
+    client.publish('comand', charArray, 2, false);
+  };
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: color }]}>
@@ -475,46 +495,54 @@ const App = () => {
           adjustToWidth={true}
         />
       </View>
-      <TouchableOpacity
-        style={styles.button}
-        disabled={client.isConnected()}
-        onPress={() => {
-          if (client.isConnected()) {
-            Alert.alert('Ja tá conectado');
-            return;
-          }
-          client.connect({
-            userName: 'aluno',
-            password: '@luno*123',
-            onFailure: f => console.log('Failure', f),
-            onSuccess: () => {
-              console.log('Sucesso');
-              client.subscribe('analogic/history', {
-                onSuccess: d => {
-                  console.log('incrito em analogic/history');
-                },
-              });
-              client.subscribe('5/history', {
-                onSuccess: d => {
-                  console.log('incrito em 5/history');
-                },
-              });
-              client.subscribe('16/history', {
-                onSuccess: d => {
-                  console.log('incrito em 16/history');
-                },
-              });
-              client.subscribe('update_interval', {
-                onSuccess: d => {
-                  console.log('incrito em update_interval');
-                },
-              });
-            },
-            reconnect: true,
-          });
-        }}>
-        <Text>{client.isConnected() ? 'Conectado ✅' : 'Conectar 📡'}</Text>
-      </TouchableOpacity>
+      <View style={{ flexDirection: 'row' }}>
+        <TouchableOpacity
+          style={styles.block}
+          disabled={client.isConnected()}
+          onPress={() => {
+            if (client.isConnected()) {
+              Alert.alert('Ja tá conectado');
+              return;
+            }
+            client.connect({
+              userName: 'aluno',
+              password: '@luno*123',
+              onFailure: f => console.log('Failure', f),
+              onSuccess: () => {
+                console.log('Sucesso');
+                client.subscribe('analogic/history', {
+                  onSuccess: () => {
+                    console.log('incrito em analogic/history');
+                  },
+                });
+                client.subscribe('5/history', {
+                  onSuccess: () => {
+                    console.log('incrito em 5/history');
+                  },
+                });
+                client.subscribe('16/history', {
+                  onSuccess: () => {
+                    console.log('incrito em 16/history');
+                  },
+                });
+                client.subscribe('update_interval', {
+                  onSuccess: () => {
+                    console.log('incrito em update_interval');
+                  },
+                });
+              },
+              reconnect: true,
+            });
+          }}>
+          <Text>{client.isConnected() ? 'Conectado ✅' : 'Conectar 📡'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={turnOnLed} style={styles.block}>
+          <Text>Ligar o led</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={turnOfLed} style={styles.block}>
+          <Text>Desligar o led</Text>
+        </TouchableOpacity>
+      </View>
       {/*}
       <TouchableOpacity
         disabled={!client.isConnected()}
@@ -545,6 +573,19 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 40,
+  },
+  block: {
+    height: 150,
+    width: 150,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
+    justifyContent: 'center',
+    alignContent: 'center',
+    display: 'flex',
+    backgroundColor: '#FFFFFF3F',
+    padding: 10,
+    marginHorizontal: 5,
   },
 });
 
